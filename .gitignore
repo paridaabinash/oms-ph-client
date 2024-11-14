@@ -2,7 +2,8 @@
 
 # Compiled output
 # Ignore environment variables file
-.env
+/src/environments/
+
 
 #/dist
 /tmp
