@@ -1,0 +1,23 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  align-content: stretch;
+  align-items: stretch;
+  position: relative;
+}
+
+.dialog-action {
+  position: sticky;
+  bottom: 0;
+  right: 0;
+  background-color: white;
+}
+
+
+
+table th,
+table td {
+  text-align: center;
+  border: 1px solid var(--table-grey);
+}

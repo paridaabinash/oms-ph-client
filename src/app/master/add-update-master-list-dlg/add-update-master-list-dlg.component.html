@@ -1,0 +1,21 @@
+<mat-progress-bar role="progressbar" aria-label="Loading progress" class="progressbar" value="100" color="accent" [mode]="!saving ? 'determinate' : 'indeterminate'"></mat-progress-bar>
+<h3 mat-dialog-title cdkDrag cdkDragBoundary=".cdk-global-overlay-wrapper" cdkDragRootElement=".cdk-overlay-pane" class="mat-dialog-title draggable dialog-header" cdkDragHandle>
+  Add/Update {{dialogData.col.name}} List
+</h3>
+
+<form [formGroup]="form" class="dialog-body report-form">
+  <mat-form-field *ngIf="dialogData.idAndName" appearance="fill">
+    <mat-label>Type ID to be Shown</mat-label>
+    <input matInput formControlName="_id" type="text" aria-label="Text" />
+  </mat-form-field>
+
+  <mat-form-field appearance="fill">
+    <mat-label>Type Entry to be Shown</mat-label>
+    <input matInput formControlName="name" type="text" aria-label="Text" />
+  </mat-form-field>
+</form>
+
+<div mat-dialog-actions align="end" class="dialog-action">
+  <button mat-stroked-button color="accent" [mat-dialog-close]="null">Cancel</button>
+  <button mat-stroked-button color="accent" type="submit" [disabled]="form.invalid" (click)="save()">Save</button>
+</div>

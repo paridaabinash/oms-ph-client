@@ -1,0 +1,2 @@
+D:\AbinashPersonal\MyProjects\OMS-WE\OMS-CLIENT\obj\Debug\OMS-WE.esproj.CoreCompileInputs.cache
+D:\AbinashPersonal\MyProjects\OMS-WE\OMS-WE\OMS-CLIENT\obj\Debug\OMS-WE.esproj.CoreCompileInputs.cache

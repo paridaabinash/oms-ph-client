@@ -1,0 +1,66 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+}
+
+.cell {
+  width: 20%;
+}
+
+.cards_container {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+  max-height: calc(90vh - 80px);
+  overflow: auto;
+  box-sizing: border-box;
+}
+
+.single_card {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-grow: 1;
+  width: 100%;
+}
+
+.table_container {
+  max-width: 70% !important;
+  width: 70% !important;
+  overflow: auto; /* Adds scroll for individual tables */
+  max-height: 300px; /* Sets max height for individual tables */
+  flex-grow: 1;
+}
+
+mat-accordion {
+  width: 100%;
+}
+.btn-parent {
+  display: flex;
+  flex-flow: wrap;
+  gap: 5px;
+  width: 100%;
+  padding-top: 10px;
+}
+mat-panel-description{
+    display: flex;
+    justify-content: space-between;
+}
+
+.head_container {
+  flex: 1;
+}
+
+.separated_text {
+  display: flex;
+  justify-content: space-between;
+  padding-right: 20px;
+}
+
+  .separated_text div:nth-child(2) {
+    font-weight: 500;
+    text-align: end;
+  }

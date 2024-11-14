@@ -1,0 +1,39 @@
+<mat-toolbar class="toolbar">
+  <mat-progress-bar role="progressbar" aria-label="Loading progress" value="100" color="accent" class="progress-main" mode="determinate" *ngIf="!saving"></mat-progress-bar>
+  <img width="140" height="35" src="/assets/logo.png" alt="Logo">
+</mat-toolbar>
+
+
+
+<img src="../../assets/welcome-img.png" class="bg-img" alt="Welcome" />
+<div class="login-container">
+  <div class="login-box">
+    <h2>Login</h2>
+    <form [formGroup]="form">
+      <mat-form-field class="form-group" appearance="outline" color="accent">
+        <mat-label>User ID</mat-label>
+        <input matInput
+               type="text"
+               formControlName="userid"
+               placeholder="Enter your User ID" />
+        <mat-hint *ngIf="form.get('userid')?.invalid && form.get('userid')?.touched">
+          User ID is required.
+        </mat-hint>
+      </mat-form-field>
+
+      <mat-form-field class="form-group" appearance="outline" color="accent">
+        <mat-label>Password</mat-label>
+        <input matInput 
+               type="password"
+               formControlName="password"
+               placeholder="Enter your Password" />
+        <mat-hint *ngIf="form.get('password')?.invalid && form.get('password')?.touched">
+          Password is required.
+        </mat-hint>
+      </mat-form-field>
+
+      <button type="submit" [disabled]="form.invalid" class="login-btn" (click)="login()">Login</button>
+    </form>
+  </div>
+</div>
+

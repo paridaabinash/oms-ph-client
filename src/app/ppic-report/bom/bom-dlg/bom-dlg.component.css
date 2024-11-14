@@ -1,0 +1,18 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  align-content: stretch;
+  align-items: stretch;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.dialog-action {
+  position: sticky;
+  bottom: 0;
+  right: 0;
+  background-color: white;
+}

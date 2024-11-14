@@ -1,0 +1,19 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  align-content: stretch;
+  align-items: center;
+}
+
+mat-tab-group {
+  width: 100%;
+}
+
+.btn-parent {
+  display: flex;
+  flex-flow: wrap;
+  gap: 5px;
+  width: 100%;
+  padding-top: 10px;
+}

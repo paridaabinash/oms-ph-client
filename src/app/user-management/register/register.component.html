@@ -1,0 +1,64 @@
+
+<mat-progress-bar role="progressbar" aria-label="Loading progress" class="progressbar" value="100" color="accent" [mode]="!saving ? 'determinate' : 'indeterminate'"></mat-progress-bar>
+<h3 mat-dialog-title cdkDrag cdkDragBoundary=".cdk-global-overlay-wrapper" cdkDragRootElement=".cdk-overlay-pane" class="mat-dialog-title draggable dialog-header" cdkDragHandle>
+  {{ dialogData ? ( dialogData.type == 'u' ? 'Update User' : 'Change Password') : 'Add New User' }}
+</h3>
+<form [formGroup]="form" class="dialog-body">
+  <mat-form-field *ngIf="!(this.dialogData && this.dialogData.type == 'p')" class="form-group" appearance="outline" color="accent">
+    <mat-label>Display Name</mat-label>
+    <input matInput
+           type="text"
+           formControlName="displayname"
+           placeholder="Enter your User ID" />
+    <mat-hint *ngIf="form.get('displayname')?.invalid && form.get('displayname')?.touched">
+      Display Name is required.
+    </mat-hint>
+  </mat-form-field>
+  <mat-form-field *ngIf="!(this.dialogData && this.dialogData.type == 'p')" class="form-group" appearance="outline" color="accent">
+    <mat-label>User ID</mat-label>
+    <input matInput
+           type="text"
+           formControlName="username"
+           placeholder="Enter your User ID" />
+    <mat-hint *ngIf="form.get('username')?.invalid && form.get('username')?.touched">
+      User ID is required.
+    </mat-hint>
+  </mat-form-field>
+  <mat-form-field *ngIf="!(this.dialogData && this.dialogData.type == 'p')" class="form-group" appearance="outline" color="accent">
+    <mat-label>Role</mat-label>
+    <mat-select formControlName="role">
+      <mat-option value="Sales">Sales</mat-option>
+      <mat-option value="Purchase">Purchase</mat-option>
+      <mat-option value="Artwork">Artwork</mat-option>
+      <mat-option value="Production">Production</mat-option>
+      <mat-option value="Packaging Material">Packaging Material</mat-option>
+      <mat-option value="PPIC">PPIC</mat-option>
+      <mat-option value="Admin">Admin</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field *ngIf="!this.dialogData || (this.dialogData && this.dialogData.type == 'p')" class="form-group" appearance="outline" color="accent">
+    <mat-label>Password</mat-label>
+    <input matInput
+           type="password"
+           formControlName="password"
+           placeholder="Enter your Password" />
+    <mat-hint *ngIf="form.get('password')?.invalid && form.get('password')?.touched">
+      Password is required.
+    </mat-hint>
+  </mat-form-field>
+  <mat-form-field *ngIf="!this.dialogData || (this.dialogData && this.dialogData.type == 'p')" class="form-group" appearance="outline" color="accent">
+    <mat-label>Confirm Password</mat-label>
+    <input matInput
+           type="password"
+           formControlName="cpassword"
+           placeholder="Confirm your Password" />
+    <mat-hint *ngIf="form.get('password').value != form.get('cpassword').value">
+      Password Doesn't Match'.
+    </mat-hint>
+  </mat-form-field>
+</form>
+<div mat-dialog-actions align="end" class="dialog-action">
+  <button mat-stroked-button color="accent" [mat-dialog-close]="null">Cancel</button>
+  <button mat-stroked-button color="accent" type="submit" [disabled]="form.invalid" (click)="save()">{{dialogData ?  (dialogData.type == 'u' ? 'Update User' : 'Save Password') : 'Save User'}}</button>
+</div>

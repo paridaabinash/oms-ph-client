@@ -1,0 +1,93 @@
+<mat-progress-bar role="progressbar" aria-label="Loading progress" class="progressbar" value="100" color="accent" [mode]="!saving ? 'determinate' : 'indeterminate'"></mat-progress-bar>
+<h3 mat-dialog-title cdkDrag cdkDragBoundary=".cdk-global-overlay-wrapper" cdkDragRootElement=".cdk-overlay-pane" class="mat-dialog-title draggable dialog-header" cdkDragHandle>
+  {{dlgHeading}}
+</h3>
+<form [formGroup]="form" class="dialog-body report-form">
+  <div *ngFor="let item of dialogData.ds" [ngStyle]="{'width': item.width ? item.width : 'auto'}">
+
+    <ng-container *ngIf="item.toggle">
+      <mat-label>{{ item.name }}</mat-label>
+      <mat-button-toggle-group [formControlName]="item.colname" style="margin-bottom: 10px; margin-left: 10px" aria-label="Font Style">
+        <mat-button-toggle *ngFor="let val of item.toggle_value" [value]="val">{{val}}</mat-button-toggle>
+      </mat-button-toggle-group>
+    </ng-container>
+
+    <ng-container *ngIf="item.image">
+      <div class="imageContainer">
+        <mat-label>{{ item.name }}</mat-label>
+        <div>
+          <input type="file" #Image accept="image/jpeg, image/jpg" (change)="onFileSelected($event, item.colname)" style="display:none;" />
+          <mat-form-field>
+            <input matInput name="imageName" [readonly]="'readonly'" (click)="Image.click()" [formControlName]="item.colname" placeholder="Image Name" maxlength="80" required>
+          </mat-form-field>
+          <button mat-raised-button class="choosefilebtn" color="accent" (click)="Image.click()">Choose File</button><br />
+        </div>
+        <div class="imageUploadArea">
+          <img [src]="dialogData.row[item.colname + 'url']" alt="{{ dialogData.row[item.colname] }}" style="width: 100%; height: 100%;" />
+        </div>
+      </div>
+
+    </ng-container>
+
+
+    <mat-form-field *ngIf="!item.toggle && !item.image" appearance="outline" [ngStyle]="{'width': item.width ? item.width : 'auto'}">
+      <mat-label>{{ item.name }}</mat-label>
+
+      <ng-container *ngIf="item.isarray; else onlydate">
+        <mat-select [formControlName]="item.colname" multiple>
+          <mat-option *ngFor="let option of item.selection_list" [value]="option">{{option}}</mat-option>
+        </mat-select>
+      </ng-container>
+
+      <ng-template #onlydate>
+        <ng-container *ngIf="item.datepicker; else textonly">
+          <div style="display: flex; align-items: center;">
+            <input matInput [formControlName]="item.colname" (click)="picker.open()" (focus)="picker.open()" [matDatepicker]="picker" placeholder="dd/mm/yyyy">
+            <mat-datepicker #picker></mat-datepicker>
+          </div>
+        </ng-container>
+      </ng-template>
+
+      <ng-template #textonly>
+        <ng-container *ngIf="item.textonly; else autocomplete">
+          <input matInput [formControlName]="item.colname" type="text" aria-label="Text" (focusout)="form.get(item.colname).setValue(form.get(item.colname).value.trim())" [placeholder]="item.ph ? item.ph : ''" />
+        </ng-container>
+      </ng-template>
+
+      <ng-template #autocomplete>
+        <ng-container>
+          <!--*ngIf="!item.master; else masterInput"-->
+          <input type="text"
+                 placeholder="Pick one"
+                 aria-label="Autofill"
+                 matInput
+                 [formControlName]="item.colname"
+                 [matAutocomplete]="auto">
+          <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onMasterSelectionChange($event, item.colname, item.master)">
+            <mat-option *ngFor="let option of (filteredOptions[item.colname] | async)" [value]="option">
+              {{ option }}
+            </mat-option>
+          </mat-autocomplete>
+        </ng-container>
+        <!--<ng-template #masterInput>
+          <input type="text"
+                 matInput
+                 placeholder="Pick one"
+                 aria-label="Autofill"
+                 [formControlName]="item.colname"
+                 [matAutocomplete]="masterRef">
+          <mat-autocomplete autoActiveFirstOption #masterRef="matAutocomplete" >
+            <mat-option *ngFor="let option of (filteredOptions[item.colname] | async)" [value]="option._id">
+              {{ option.name }}
+            </mat-option>
+          </mat-autocomplete>
+        </ng-template>-->
+      </ng-template>
+    </mat-form-field>
+  </div>
+</form>
+
+<div mat-dialog-actions align="end" class="dialog-action">
+  <button mat-stroked-button color="accent" [mat-dialog-close]="null">Cancel</button>
+  <button mat-stroked-button color="accent" type="submit" [disabled]="form.invalid" (click)="save()">Save</button>
+</div>

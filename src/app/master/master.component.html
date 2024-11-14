@@ -1,0 +1,32 @@
+<div *ngIf="saving" class="content">
+  <div class="pill">
+    <div class="medicine">
+      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+    </div>
+    <div class="side"></div>
+    <div class="side"></div>
+  </div>
+</div>
+
+<mat-tab-group (selectedTabChange)="onTabChange($event)">
+  <mat-tab label="Order Report">
+    <div class="btn-parent">
+      <button mat-stroked-button *ngFor="let col of displayedColumns[0];" (click)="addMaster(col)">{{col.name}}</button>
+    </div>
+  </mat-tab>
+  <mat-tab label="RM Report">
+    <div class="btn-parent">
+      <button mat-stroked-button *ngFor="let col of displayedColumns[1]" (click)="addMaster(col)">{{col.name}}</button>
+    </div>
+  </mat-tab>
+  <mat-tab label="PM Report">
+    <div class="btn-parent">
+      <button mat-stroked-button *ngFor="let col of displayedColumns[2]" (click)="addMaster(col)">{{col.name}}</button>
+    </div>
+  </mat-tab>
+  <mat-tab label="Artwork Report">
+    <div class="btn-parent">
+      <button mat-stroked-button *ngFor="let col of displayedColumns[3]" (click)="addMaster(col)">{{col.name}}</button>
+    </div>
+  </mat-tab>
+</mat-tab-group>

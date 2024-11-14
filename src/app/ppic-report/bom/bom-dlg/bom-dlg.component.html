@@ -1,0 +1,68 @@
+<mat-progress-bar role="progressbar" aria-label="Loading progress" class="progressbar" value="100" color="accent" [mode]="!saving ? 'determinate' : 'indeterminate'"></mat-progress-bar>
+<h3 mat-dialog-title cdkDrag cdkDragBoundary=".cdk-global-overlay-wrapper" cdkDragRootElement=".cdk-overlay-pane" class="mat-dialog-title draggable dialog-header" cdkDragHandle>
+  Add/Update BOM List
+</h3>
+
+<form [formGroup]="form" class="dialog-body report-form">
+
+  <mat-form-field appearance="fill">
+    <mat-label>Select RM Name</mat-label>
+    <input type="text"
+           placeholder="Pick one"
+           aria-label="Autofill"
+           matInput
+           formControlName="rm_stock_name"
+           [matAutocomplete]="auto">
+    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onMasterSelectionChange($event)">
+      <mat-option *ngFor="let option of brandList" [value]="option">
+        {{ option }}
+      </mat-option>
+    </mat-autocomplete>
+  </mat-form-field>
+
+  <mat-form-field appearance="fill">
+    <mat-label> Unit </mat-label>
+    <input matInput formControlName="unit" type="text" aria-label="Text" />
+  </mat-form-field>
+  <mat-form-field appearance="fill">
+    <mat-label> Present Stock (In KG's) </mat-label>
+    <input matInput formControlName="present_stock" type="text" aria-label="Text" />
+  </mat-form-field>
+
+  <mat-form-field appearance="fill">
+    <mat-label> Standard Qty (In KG's) </mat-label>
+    <input matInput formControlName="standard_qty" type="text" aria-label="Text" />
+  </mat-form-field>
+
+  <mat-form-field appearance="fill">
+    <mat-label> Change Part Number </mat-label>
+    <input matInput formControlName="changepart_number" type="text" aria-label="Text" />
+  </mat-form-field>
+
+  <mat-form-field appearance="fill">
+    <mat-label> Remarks </mat-label>
+    <input matInput formControlName="remarks" type="text" aria-label="Text" />
+  </mat-form-field>
+
+  <mat-form-field appearance="fill">
+    <mat-label> PO Number </mat-label>
+    <input matInput formControlName="po_number" type="text" aria-label="Text" />
+  </mat-form-field>
+
+  <mat-form-field appearance="fill">
+    <mat-label> PO Date </mat-label>
+    <input matInput formControlName="po_date" type="text" aria-label="Text" />
+  </mat-form-field>
+
+  <mat-form-field appearance="fill">
+    <mat-label> Party Name </mat-label>
+    <input matInput formControlName="party_name" type="text" aria-label="Text" />
+  </mat-form-field>
+
+
+</form>
+
+<div mat-dialog-actions align="end" class="dialog-action">
+  <button mat-stroked-button color="accent" [mat-dialog-close]="null">Cancel</button>
+  <button mat-stroked-button color="accent" type="submit" [disabled]="form.invalid" (click)="save()">Save</button>
+</div>

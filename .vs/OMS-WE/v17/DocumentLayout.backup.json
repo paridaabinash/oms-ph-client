@@ -1,0 +1,45 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\AbinashPersonal\\MyProjects\\OMS-WE\\OMS-CLIENT\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{612BB613-E3A2-4BC4-ABA7-62ABD5D797AA}|OMS-WE.esproj|d:\\abinashpersonal\\myprojects\\oms-we\\oms-client\\package.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{612BB613-E3A2-4BC4-ABA7-62ABD5D797AA}|OMS-WE.esproj|solutionrelative:package.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 133,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:12:0:{2456bd12-ecf7-4988-a4a6-67d49173f565}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{65ddf8c3-8f89-4077-a6c6-dbb8853aab13}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "package.json",
+              "DocumentMoniker": "D:\\AbinashPersonal\\MyProjects\\OMS-WE\\OMS-CLIENT\\package.json",
+              "RelativeDocumentMoniker": "package.json",
+              "ToolTip": "D:\\AbinashPersonal\\MyProjects\\OMS-WE\\OMS-CLIENT\\package.json",
+              "RelativeToolTip": "package.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2024-10-04T16:21:00.864Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+<mat-progress-bar value="100" color="accent" mode="determinate"></mat-progress-bar>
+
+<p mat-dialog-content>{{dialogData.Question}}</p>
+<div mat-dialog-actions align="end">
+  <button mat-flat-button [mat-dialog-close]="null">{{dialogData.NoText}}</button>
+  <button mat-flat-button [mat-dialog-close]="true" cdkFocusInitial color="primary">{{dialogData.YesText}}</button>
+</div>

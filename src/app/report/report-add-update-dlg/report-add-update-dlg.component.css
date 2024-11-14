@@ -1,0 +1,49 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  align-content: stretch;
+  align-items: stretch;
+}
+
+.report-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.dialog-action {
+  position: sticky;
+  bottom: 0;
+  right: 0;
+  background-color: white;
+}
+
+table th,
+table td {
+  text-align: center;
+  border: 1px solid var(--table-grey);
+}
+
+.imageContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.choosefilebtn {
+  margin: 0px 10px 10px 0px;
+}
+
+.imageUploadArea {
+  display: block;
+  width: 200px;
+  height: 200px;
+  overflow: auto;
+  border: inset;
+}
+
+.small-icon mat-icon {
+  font-size: 16px; /* Adjust size as needed */
+  width: 20px; /* Adjust width as needed */
+  height: 20px;
+}
