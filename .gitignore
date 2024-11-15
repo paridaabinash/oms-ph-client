@@ -4,6 +4,11 @@
 # Ignore environment variables file
 /src/environments/
 
+# Ignore cache and temporary files
+.vs/
+.vscode/
+obj/
+dist/
 
 #/dist
 /tmp
