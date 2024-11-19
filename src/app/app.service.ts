@@ -17,23 +17,23 @@ export class AppService {
   constructor(private http: HttpClient, private router: Router) { this.TokenInit(); }
   public httpHeaders: any;
   orderDS: any[] = [
-    { colname: 'cycletime', name: 'Cycle Time', autofill: true, manual: true },// manual: true : for automatic changes where calculaton required on report
+    { colname: 'cycletime', name: 'Cycle Time', autofill: true, manual: true, displayCol: true },// manual: true : for automatic changes where calculaton required on report
     { colname: 'po_final_date', name: 'PO Finalization Date', datefill: true, datepicker: true },
-    { colname: 'wo_number', name: 'Work Order No.', autofill: true },
-    { colname: 'brand_name', name: 'Brand Name', autocomplete: true, selection_list: [] },
+    { colname: 'wo_number', name: 'Work Order No.', autofill: true, displayCol: true },
+    { colname: 'brand_name', name: 'Brand Name', autocomplete: true, selection_list: [], displayCol: true },
 
     //composition master - 
-    { colname: 'composition_code', name: 'Compostion Code', autocomplete: true, selection_list: [], master: true },
-    { colname: 'composition_generic_name', name: 'Generic Name', autofill: true, width: '100%' },
+    { colname: 'composition_code', name: 'Compostion Code', autocomplete: true, selection_list: [], master: true, displayCol: true },
+    { colname: 'composition_generic_name', name: 'Generic Name', autofill: true, width: '100%', displayCol: true },
     { colname: 'therapeutic_use', name: 'Therapeutic Use', autofill: true },
-    { colname: 'product_type', name: 'Product Type', autofill: true },
+    { colname: 'product_type', name: 'Product Type', autofill: true, displayCol: true },
     { colname: 'cap_tab_size', name: 'Tab/Capsule Size', autofill: true },
     //--------------------
 
-    { colname: 'pack_type', name: 'Pack Type', autocomplete: true, selection_list: [] },
-    { colname: 'order_qty', name: 'Order Qty', textonly: true },
-    { colname: 'order_type', name: 'Order Type', autocomplete: true, selection_list: [] },
-    { colname: 'qty_in_tabs', name: 'Qty In Tabs', autofill: true },
+    { colname: 'pack_type', name: 'Pack Type', autocomplete: true, selection_list: [], displayCol: true },
+    { colname: 'order_qty', name: 'Order Qty', textonly: true, displayCol: true },
+    { colname: 'order_type', name: 'Order Type', autocomplete: true, selection_list: [], displayCol: true },
+    { colname: 'qty_in_tabs', name: 'Qty In Tabs', autofill: true, displayCol: true },
     { colname: 'wip', name: 'WIP', textonly: true },
     { colname: 'rfd', name: 'RFD', textonly: true },
     { colname: 'dispatch', name: 'Dispatch', textonly: true },
@@ -65,7 +65,7 @@ export class AppService {
     { colname: 'carton_ordered', name: 'Carton Ordered' },
     { colname: 'outer_carton_recieved', name: 'Outer Carton Received' },
     { colname: 'unit_carton_recieved', name: 'Unit Carton Received' },
-    { colname: 'party_name', name: 'Party Name', autocomplete: true, selection_list: [] },
+    { colname: 'party_name', name: 'Party Name', autocomplete: true, selection_list: [], displayCol: true },
     { colname: 'marketed_by', name: 'Marketed By', autocomplete: true, selection_list: [] },
     { colname: 'marketed_by_address', name: 'Marketed By Address' },
     { colname: 'drug_marketed_by_address', name: 'Drug License For Marketed By Address' },
@@ -80,15 +80,15 @@ export class AppService {
     { colname: 'pm_status', name: 'PM Status' },
     { colname: 'batch_number', name: 'Batch No.', textonly: true },
     { colname: 'yield', name: 'Yield in %', autofill: true, default: 0 },
-    { colname: 'order_status', name: 'Order Status', autofill: true, default: 'Pending' },
+    { colname: 'order_status', name: 'Order Status', autofill: true, default: 'Pending', displayCol: true },
     { colname: 'remarks', name: 'Remarks', textonly: true },
   ];
   artDS: any[] = [
-    { colname: 'artwork_code', name: 'Artwork Code', autofill: true },
+    { colname: 'artwork_code', name: 'Artwork Code', autofill: true, displayCol: true },
     { colname: 'completion_date', name: 'Completion Date', datepicker: true, datefill: true },
-    { colname: 'order_type', name: 'Order Type', autofill: true },
-    { colname: 'party_name', name: 'Party Name', autofill: true },
-    { colname: 'brand_name', name: 'Brand Name', autofill: true },
+    { colname: 'order_type', name: 'Order Type', autofill: true, displayCol: true },
+    { colname: 'party_name', name: 'Party Name', autofill: true, displayCol: true },
+    { colname: 'brand_name', name: 'Brand Name', autofill: true, displayCol: true },
 
     { colname: 'carton_artwork_code_inner', name: 'Carton Inner Artwork Code', autofill: true },
     { colname: 'carton_artwork_code_outer', name: 'Carton Outer Artwork Code', autofill: true },
@@ -104,64 +104,64 @@ export class AppService {
     { colname: 'carton_printed_by', name: 'Carton Printed By', textonly: true },
     { colname: 'tube_sticker_foil_printed_by', name: 'Tube/Sticker/Foil Printed By', textonly: true },
 
-    { colname: 'qc_approve_status', name: 'QC Approve Status', autocomplete: true, selection_list: [] },
-    { colname: 'artwork_status', name: 'Artwork Status', width: '100%', toggle: true, toggle_value: ["Incomplete", "Complete"] },
+    { colname: 'qc_approve_status', name: 'QC Approve Status', autocomplete: true, selection_list: [], displayCol: true },
+    { colname: 'artwork_status', name: 'Artwork Status', width: '100%', toggle: true, toggle_value: ["Incomplete", "Complete"], displayCol: true },
     { colname: 'carton_artwork_inner', name: 'Carton Inner Artwork', image: true },
     { colname: 'carton_artwork_outer', name: 'Carton Outer Artwork', image: true },
     { colname: 'tube_sticker_foil_artwork', name: 'Tube/Sticker/Foil Artwork', image: true },
   ];
   rmDS: any[] = [
-    { colname: 'party_name', name: 'Party Name', autocomplete: true, selection_list: [] },
-    { colname: 'po_number', name: 'PO Number', textonly: true },
-    { colname: 'order_date', name: 'Order Date', datepicker: true },
+    { colname: 'party_name', name: 'Party Name', autocomplete: true, selection_list: [], displayCol: true },
+    { colname: 'po_number', name: 'PO Number', textonly: true, displayCol: true },
+    { colname: 'order_date', name: 'Order Date', datepicker: true, displayCol: true },
 
     // Item Master
-    { colname: 'category', name: 'Category', autofill: true },
-    { colname: 'rm_item_name', name: 'Item Name', master: true, width: '100%', autocomplete: true, selection_list: [] },
+    { colname: 'category', name: 'Category', autofill: true, displayCol: true },
+    { colname: 'rm_item_name', name: 'Item Name', master: true, width: '100%', autocomplete: true, selection_list: [], displayCol: true },
     { colname: 'required_make', name: 'Required Make', autofill: true },
-    { colname: 'po_quantity', name: 'PO Quantity', textonly: true },
-    { colname: 'unit', name: 'Unit', autofill: true },
+    { colname: 'po_quantity', name: 'PO Quantity', textonly: true, displayCol: true },
+    { colname: 'unit', name: 'Unit', autofill: true, displayCol: true },
     // -----------
 
     { colname: 'rate', name: 'Rate', textonly: true },
     { colname: 'broker', name: 'Broker', autocomplete: true, selection_list: [] },
     { colname: 'logistic', name: 'Logistic', autocomplete: true, selection_list: [] },
     { colname: 'pay', name: 'Pay', textonly: true },
-    { colname: 'qty_recieved', name: 'Qty Recieved', textonly: true },
-    { colname: 'status', name: 'Status', textonly: true },
+    { colname: 'qty_recieved', name: 'Qty Recieved', textonly: true, displayCol: true },
+    { colname: 'status', name: 'Status', textonly: true, displayCol: true },
     { colname: 'pending', name: 'Pending', autofill: true },
     { colname: 'remarks', name: 'Remarks', textonly: true }
   ];
   pmDS: any[] = [
-    { colname: 'pm_item', name: 'Item', autofill: true },
-    { colname: 'seniority', name: 'Seniority', autofill: true }, // diff today date - pm date
-    { colname: 'supplier', name: 'Supplier', autocomplete: true, selection_list: [] },
+    { colname: 'pm_item', name: 'Item', autofill: true, displayCol: true },
+    { colname: 'seniority', name: 'Seniority', autofill: true, displayCol: true }, // diff today date - pm date
+    { colname: 'supplier', name: 'Supplier', autocomplete: true, selection_list: [], displayCol: true },
     { colname: 'wo_number', name: 'WO No', autofill: true },
-    { colname: 'pm_no', name: 'PM No', textonly: true },
-    { colname: 'po_date', name: 'PO Date', datepicker: true },
-    { colname: 'brand_name', name: 'Product Name', autofill: true }, // brand name == product name
+    { colname: 'pm_no', name: 'PM No', textonly: true, displayCol: true },
+    { colname: 'po_date', name: 'PO Date', datepicker: true, displayCol: true },
+    { colname: 'brand_name', name: 'Product Name', autofill: true, displayCol: true }, // brand name == product name
     { colname: 'dye', name: 'Dye', autofill: true },
     { colname: 'carton_size_inner', name: 'Carton Size Inner', autofill: true },
     { colname: 'carton_size_outer', name: 'Carton Size Outer', autofill: true },
-    { colname: 'pack_type', name: 'Pack Type', autofill: true },
-    { colname: 'order_qty', name: 'Order Qty', autofill: true }, // autofill from ppic report
+    { colname: 'pack_type', name: 'Pack Type', autofill: true, displayCol: true },
+    { colname: 'order_qty', name: 'Order Qty', autofill: true, displayCol: true }, // autofill from ppic report
     { colname: 'rate', name: 'Rate', textonly: true },
     { colname: 'order_type', name: 'Order Type', autofill: true },
     { colname: 'specification', name: 'Specification', textonly: true },
-    { colname: 'recieved_qty', name: 'Received Qty', textonly: true },
-    { colname: 'pending_qty', name: 'Pending Qty', autofill: true }, // order qty - recvd qty
+    { colname: 'recieved_qty', name: 'Received Qty', textonly: true, displayCol: true },
+    { colname: 'pending_qty', name: 'Pending Qty', autofill: true, displayCol: true }, // order qty - recvd qty
     { colname: 'status', name: 'Status', textonly: true },
     { colname: 'remarks', name: 'Remarks', textonly: true }
   ];
 
   underTestStock: any[] = [
-    { colname: 'rm_item_name', name: 'Item Name', width: '100%', autofill: true },
-    { colname: 'rm_batch', name: 'Batch', textonly: true },
-    { colname: 'qty_recieved', name: 'Qty Recieved', autofill: true },
-    { colname: 'qc_approve_status', name: 'QC Approve Status', autocomplete: true, selection_list: [] }
+    { colname: 'rm_item_name', name: 'Item Name', width: '100%', autofill: true, displayCol: true },
+    { colname: 'rm_batch', name: 'Batch', textonly: true, displayCol: true },
+    { colname: 'qty_recieved', name: 'Qty Recieved', autofill: true, displayCol: true },
+    { colname: 'qc_approve_status', name: 'QC Approve Status', autocomplete: true, selection_list: [], displayCol: true }
   ]
 
-  shortagesDS: any[] = [
+  shortagesDS: any[] = [ // one of static ds
     { colname: 'rm_item_name', name: 'Item Name', width: '100%', autofill: true },
     { colname: 'required_stock', name: 'Required Qty (In KG)', autofill: true },
     { colname: 'present_stock', name: 'Present Stock', autofill: true },

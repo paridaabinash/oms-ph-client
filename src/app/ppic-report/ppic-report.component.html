@@ -71,7 +71,7 @@
   <mat-tab label="Under Test RM Stock">
     <app-report *ngIf="activeTabIndex === 3" type="under_test_stock_report" [displayedColumns]="appservice.underTestStock"></app-report>
   </mat-tab>
-  <mat-tab label="Under Test RM Stock">
+  <mat-tab label="Shortages">
     <app-report *ngIf="activeTabIndex === 4" type="shortages" [displayedColumns]="appservice.shortagesDS" [staticDS]="shortagesReportDS" [isStatic]="true"></app-report>
   </mat-tab>
 </mat-tab-group>

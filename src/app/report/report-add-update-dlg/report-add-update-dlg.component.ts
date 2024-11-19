@@ -129,7 +129,7 @@ export class ReportAddUpdateDlgComponent implements OnInit {
       }
     });
     if (this.dialogData.type == 'order_report') { // extra data that should not show in report or form, just save for different prps
-      if (this.dialogData.row['rm_item_name'])
+      if (this.dialogData.row && this.dialogData.row['rm_item_name'])
         form.addControl('rm_item_name', new FormControl(this.dialogData.row['rm_item_name']));
     }
   }
@@ -270,7 +270,6 @@ export class ReportAddUpdateDlgComponent implements OnInit {
           }
         }
         artwork.type = 'art_report';
-        this.dialogData.row
         artwork.artwork_status = 'Incomplete';
 
         try {

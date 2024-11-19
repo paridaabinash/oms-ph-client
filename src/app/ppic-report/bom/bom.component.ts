@@ -108,7 +108,7 @@ export class BomComponent {
   }
   updateBOM(row: any, index: number, bomindex: number) {
     this.dialog.open(BomDlgComponent, {
-      width: '100%', height: '90%', data: { row }
+      width: '90%', height: '90%', data: { row }
     }).afterClosed().subscribe(res => {
       if (res) {
         res.required_qty = (res.standard_qty * 100000) / this.temp_pendingBOMDatasource[bomindex].value;

@@ -108,7 +108,7 @@ export class ReportComponent implements OnInit {
     }
 
     this.dialog.open(ReportAddUpdateDlgComponent, {
-      width: '100%', height: height, data: { ds: this.displayedColumns, type: this.type }
+      width: '90%', height: height, data: { ds: this.displayedColumns, type: this.type }
     }).afterClosed().subscribe(res => {
       if (res) {
         this.reportDataSource.data.push(res);
@@ -126,7 +126,7 @@ export class ReportComponent implements OnInit {
       case 'packaging_master': height = 'auto'; break;
     }
     this.dialog.open(ReportAddUpdateDlgComponent, {
-      width: '100%', height: height, data: { row, ds: this.displayedColumns, type: this.type }
+      width: '90%', height: height, data: { row, ds: this.displayedColumns, type: this.type }
     }).afterClosed().subscribe(res => {
       if (res) {
         this.reportDataSource.data.splice(index, 1, res);
@@ -181,7 +181,10 @@ export class ReportComponent implements OnInit {
     if (this.isStatic)
       return this.displayedColumns.map(col => col.colname);
     else
-      return this.displayedColumns.map(col => col.colname).concat('action');
+      return this.displayedColumns.reduce((acc, col) => {
+        if (col.displayCol) acc.push(col.colname);
+        return acc;
+      }, []).concat('action');
   }
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;

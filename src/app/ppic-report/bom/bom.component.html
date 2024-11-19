@@ -66,7 +66,7 @@
             <td mat-cell *matCellDef="let row" class="cell"> {{row.changepart_number}} </td>
           </ng-container>
 
-          <ng-container matColumnDef="remarks">
+          <!--<ng-container matColumnDef="remarks">
             <th mat-header-cell *matHeaderCellDef class="cell"> Remarks </th>
             <td mat-cell *matCellDef="let row" class="cell"> {{row.remarks}} </td>
           </ng-container>
@@ -84,7 +84,7 @@
           <ng-container matColumnDef="party_name">
             <th mat-header-cell *matHeaderCellDef class="cell"> Party Name </th>
             <td mat-cell *matCellDef="let row" class="cell"> {{row.party_name}} </td>
-          </ng-container>
+          </ng-container>-->
 
 
           <ng-container matColumnDef="action" sticky stickyEnd>
@@ -103,8 +103,8 @@
             </td>
           </ng-container>
 
-          <tr mat-header-row *matHeaderRowDef="['rm_stock_name','unit', 'standard_qty','required_qty', 'present_stock','changepart_number','remarks','po_number','po_date','party_name', 'action']"></tr>
-          <tr mat-row *matRowDef="let row; columns: ['rm_stock_name','unit', 'standard_qty','required_qty', 'present_stock','changepart_number','remarks','po_number','po_date','party_name', 'action'];"></tr>
+          <tr mat-header-row *matHeaderRowDef="['rm_stock_name','unit', 'standard_qty','required_qty', 'present_stock','changepart_number', 'action']"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['rm_stock_name','unit', 'standard_qty','required_qty', 'present_stock','changepart_number', 'action'];"></tr>
 
         </table>
       </div>
