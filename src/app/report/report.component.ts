@@ -22,6 +22,7 @@ export class ReportComponent implements OnInit {
   @Input() isStatic: boolean = false;
   reportDataSource: MatTableDataSource<any>;
   saving = false;
+  displayAllCol: boolean = false; // reports all columns will be visible
 
   debounceSearch: Function;
   constructor(private appservice: AppService,
@@ -45,11 +46,11 @@ export class ReportComponent implements OnInit {
       case 'art_report': getall = this.appservice.GetAllReports('artReport'); break;
       case 'rm_report': getall = this.appservice.GetAllReports('rmReport'); break;
       case 'pm_report': getall = this.appservice.GetAllReports('pmReport'); break;
-      case 'under_test_stock_report': getall = this.appservice.GetAllReports('underTestStock'); break;
+      case 'under_test_stock_report': getall = this.appservice.GetAllReports('underTestStock'); this.displayAllCol = true; break;
       case 'composition_master':
       case 'rm_master':
       case 'pm_stock_master':
-      case 'packaging_master': getall = this.appservice.GetAllLinkingMaster(this.type); break;
+      case 'packaging_master': getall = this.appservice.GetAllLinkingMaster(this.type); this.displayAllCol = true; break;
       default:
         throw new Error('Invalid report type');
     }
@@ -181,7 +182,9 @@ export class ReportComponent implements OnInit {
     if (this.isStatic)
       return this.displayedColumns.map(col => col.colname);
     else
-      return this.displayedColumns.reduce((acc, col) => {
+      return this.displayAllCol ?
+        this.displayedColumns.map(col => col.colname).concat('action') :
+        this.displayedColumns.reduce((acc, col) => {
         if (col.displayCol) acc.push(col.colname);
         return acc;
       }, []).concat('action');

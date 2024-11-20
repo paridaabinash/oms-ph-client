@@ -155,10 +155,10 @@ export class AppService {
   ];
 
   underTestStock: any[] = [
-    { colname: 'rm_item_name', name: 'Item Name', width: '100%', autofill: true, displayCol: true },
-    { colname: 'rm_batch', name: 'Batch', textonly: true, displayCol: true },
-    { colname: 'qty_recieved', name: 'Qty Recieved', autofill: true, displayCol: true },
-    { colname: 'qc_approve_status', name: 'QC Approve Status', autocomplete: true, selection_list: [], displayCol: true }
+    { colname: 'rm_item_name', name: 'Item Name', width: '100%', autofill: true },
+    { colname: 'rm_batch', name: 'Batch', textonly: true },
+    { colname: 'qty_recieved', name: 'Qty Recieved', autofill: true },
+    { colname: 'qc_approve_status', name: 'QC Approve Status', autocomplete: true, selection_list: [] }
   ]
 
   shortagesDS: any[] = [ // one of static ds
