@@ -5,13 +5,16 @@
   <mat-tab label="Composition Link Master">
     <app-report *ngIf="activeTabIndex === 0" type="composition_master" [displayedColumns]="appservice.compositionMaster"></app-report>
   </mat-tab>
-  <mat-tab label="RM Link Master">
-    <app-report *ngIf="activeTabIndex === 1" type="rm_master" [displayedColumns]="appservice.rmMaster"></app-report>
-  </mat-tab>
   <mat-tab label="Packaging Link Master">
-    <app-report *ngIf="activeTabIndex === 2" type="packaging_master" [displayedColumns]="appservice.packageMaster"></app-report>
+    <app-report *ngIf="activeTabIndex === 1" type="packaging_master" [displayedColumns]="appservice.packageMaster"></app-report>
+  </mat-tab>
+  <mat-tab label="RM Link Master">
+    <app-report *ngIf="activeTabIndex === 2" type="rm_master" [displayedColumns]="appservice.rmMaster"></app-report>
   </mat-tab>
   <mat-tab label="PM Stock Master">
     <app-report *ngIf="activeTabIndex === 3" type="pm_stock_master" [displayedColumns]="appservice.pmStockMaster"></app-report>
+  </mat-tab>
+  <mat-tab label="Brand Link Master">
+    <app-report *ngIf="activeTabIndex === 4" type="brand_master" [displayedColumns]="appservice.brandStockMaster"></app-report>
   </mat-tab>
 </mat-tab-group>

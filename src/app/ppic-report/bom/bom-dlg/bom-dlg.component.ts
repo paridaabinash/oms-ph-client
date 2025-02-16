@@ -53,7 +53,7 @@ export class BomDlgComponent {
 
   async onMasterSelectionChange(event: any) {
     this.saving = true;
-    let selectedValue = event.option.value.replace(/[^a-zA-Z0-9]/g, '_')
+    let selectedValue = event.option.value
     try {
       let res = await lastValueFrom(this.appservice.GetLinkingMasterById(selectedValue))
       if (res) {

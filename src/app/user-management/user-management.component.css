@@ -3,7 +3,11 @@
   flex-direction: column;
   height: 100%;
   align-content: stretch;
-  align-items: center;
+  
+}
+
+table {
+  height: 0;
 }
 
 table th,

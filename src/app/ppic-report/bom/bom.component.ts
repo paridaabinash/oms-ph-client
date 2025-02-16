@@ -74,7 +74,7 @@ export class BomComponent {
         }
       }
       try {
-        const response: any[] = await lastValueFrom(this.appservice.GetLinkingMasterByIds('pm_stock_master' , Object.keys(temp_ds).map(res => res.replace(/[^a-zA-Z0-9]/g, '_'))));
+        const response: any[] = await lastValueFrom(this.appservice.GetLinkingMasterByIds('pm_stock_master' , Object.keys(temp_ds).map(res => res)));
         if (response) {
           response.forEach((res, i) => {
             this.temp_pendingBOMDatasource[i].present_stock = res.doc.present_stock;
