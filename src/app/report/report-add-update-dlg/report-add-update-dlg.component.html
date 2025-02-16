@@ -3,7 +3,7 @@
   {{dlgHeading}}
 </h3>
 <form [formGroup]="form" class="dialog-body report-form">
-  <div *ngFor="let item of dialogData.ds" [ngStyle]="{'width': item.width ? item.width : 'auto'}">
+  <div *ngFor="let item of dialogData.ds; let index = index" [ngStyle]="{'width': item.width ? item.width : 'auto'}">
 
     <ng-container *ngIf="item.toggle">
       <mat-label>{{ item.name }}</mat-label>
@@ -26,68 +26,96 @@
           <img [src]="dialogData.row[item.colname + 'url']" alt="{{ dialogData.row[item.colname] }}" style="width: 100%; height: 100%;" />
         </div>
       </div>
+    </ng-container>
+
+    <ng-container *ngIf="item.expansion_table; else checkFormField" >
+      <mat-expansion-panel expanded="true">
+        <mat-expansion-panel-header>
+          <mat-panel-title> {{item.name}} </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="table-container">
+          <table mat-table [dataSource]="item.ds" class="mat-elevation-z8 mat-table">
+            <ng-container *ngFor="let col of getDisplayedCol(item.expansion_table)" [matColumnDef]="col.colname">
+              <th mat-header-cell *matHeaderCellDef> {{col.name}} </th>
+              <td mat-cell *matCellDef="let row">
+                {{row[col.colname]}}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="action" sticky stickyEnd>
+              <th mat-header-cell *matHeaderCellDef>
+                <button mat-icon-button (click)="addRow(item, item.expansion_table, item.rep_type)" matTooltip="Create Report">
+                  <mat-icon mat-stroked-button>add_circle_outline</mat-icon>
+                </button>
+              </th>
+              <td mat-cell *matCellDef="let row; let index = index">
+                <button mat-icon-button (click)="updateRow(row, index, item, item.expansion_table, item.rep_type)" matTooltip="Edit Report">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button (click)="deleteRow(row, index, item)" matTooltip="Delete Report">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="getDisplayedColumns(item.expansion_table); sticky: true"></tr>
+            <tr mat-row *matRowDef="let row; columns: getDisplayedColumns(item.expansion_table);"></tr>
+          </table>
+        </div>
+      </mat-expansion-panel>
 
     </ng-container>
 
+    <ng-template #checkFormField>
+      <mat-form-field *ngIf="!item.toggle && !item.image" appearance="outline" [ngStyle]="{'width': item.width ? item.width : 'auto'}">
+        <mat-label>{{ item.name }}</mat-label>
 
-    <mat-form-field *ngIf="!item.toggle && !item.image" appearance="outline" [ngStyle]="{'width': item.width ? item.width : 'auto'}">
-      <mat-label>{{ item.name }}</mat-label>
-
-      <ng-container *ngIf="item.isarray; else onlydate">
-        <mat-select [formControlName]="item.colname" multiple>
-          <mat-option *ngFor="let option of item.selection_list" [value]="option">{{option}}</mat-option>
-        </mat-select>
-      </ng-container>
-
-      <ng-template #onlydate>
-        <ng-container *ngIf="item.datepicker; else textonly">
-          <div style="display: flex; align-items: center;">
-            <input matInput [formControlName]="item.colname" (click)="picker.open()" (focus)="picker.open()" [matDatepicker]="picker" placeholder="dd/mm/yyyy">
-            <mat-datepicker #picker></mat-datepicker>
-          </div>
+        <ng-container *ngIf="item.isarray; else onlydate">
+          <mat-select [formControlName]="item.colname" multiple>
+            <mat-option *ngFor="let option of item.selection_list" [value]="option">{{option}}</mat-option>
+          </mat-select>
         </ng-container>
-      </ng-template>
 
-      <ng-template #textonly>
-        <ng-container *ngIf="item.textonly; else autocomplete">
-          <input matInput [formControlName]="item.colname" type="text" aria-label="Text" (focusout)="form.get(item.colname).setValue(form.get(item.colname).value.trim())" [placeholder]="item.ph ? item.ph : ''" />
-        </ng-container>
-      </ng-template>
+        <ng-template #onlydate>
+          <ng-container *ngIf="item.datepicker; else input_field">
+            <div style="display: flex; align-items: center;">
+              <input matInput [formControlName]="item.colname" (click)="picker.open()" (focus)="picker.open()" [matDatepicker]="picker" placeholder="dd/mm/yyyy">
+              <mat-datepicker #picker></mat-datepicker>
+            </div>
+          </ng-container>
+        </ng-template>
 
-      <ng-template #autocomplete>
-        <ng-container>
-          <!--*ngIf="!item.master; else masterInput"-->
-          <input type="text"
-                 placeholder="Pick one"
-                 aria-label="Autofill"
-                 matInput
-                 [formControlName]="item.colname"
-                 [matAutocomplete]="auto">
-          <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onMasterSelectionChange($event, item.colname, item.master)">
-            <mat-option *ngFor="let option of (filteredOptions[item.colname] | async)" [value]="option">
-              {{ option }}
-            </mat-option>
-          </mat-autocomplete>
-        </ng-container>
-        <!--<ng-template #masterInput>
-          <input type="text"
-                 matInput
-                 placeholder="Pick one"
-                 aria-label="Autofill"
-                 [formControlName]="item.colname"
-                 [matAutocomplete]="masterRef">
-          <mat-autocomplete autoActiveFirstOption #masterRef="matAutocomplete" >
-            <mat-option *ngFor="let option of (filteredOptions[item.colname] | async)" [value]="option._id">
-              {{ option.name }}
-            </mat-option>
-          </mat-autocomplete>
-        </ng-template>-->
-      </ng-template>
-    </mat-form-field>
+        <ng-template #input_field>
+          <ng-container *ngIf="item.input_field; else autocomplete">
+            <input matInput [formControlName]="item.colname" [type]="item?.input_type ?? 'text'" aria-label="Text" (focusout)="form.get(item.colname).setValue(form.get(item.colname).value.trim())" [placeholder]="item.ph ? item.ph : ''" />
+          </ng-container>
+        </ng-template>
+
+
+
+        <ng-template #autocomplete>
+          <ng-container>
+            <!--*ngIf="!item.master; else masterInput"-->
+            <input type="text"
+                   placeholder="Pick one"
+                   aria-label="Autofill"
+                   matInput
+                   [formControlName]="item.colname"
+                   (blur)="onBlur(item.selection_list, item.colname, index)"
+                   [matAutocomplete]="auto">
+            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onMasterSelectionChange($event, item.colname, item.master)">
+              <mat-option *ngFor="let option of (filteredOptions[item.colname] | async)" [value]="option">
+                {{ option }}
+              </mat-option>
+            </mat-autocomplete>
+          </ng-container>
+        </ng-template>
+      </mat-form-field>
+    </ng-template>
   </div>
 </form>
 
 <div mat-dialog-actions align="end" class="dialog-action">
   <button mat-stroked-button color="accent" [mat-dialog-close]="null">Cancel</button>
-  <button mat-stroked-button color="accent" type="submit" [disabled]="form.invalid" (click)="save()">Save</button>
+  <button mat-stroked-button color="accent" type="submit" [disabled]="form.invalid || !userAccessCheck()" (click)="save()">Save</button>
 </div>

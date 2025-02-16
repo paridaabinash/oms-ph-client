@@ -6,6 +6,7 @@ import { RegisterComponent } from './register/register.component';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
 import { ConfirmationDlgComponent } from '../common/confirmation-dlg/confirmation-dlg.component';
+import { LocaleService } from '../common/locale/locale.service';
 
 @Component({
   selector: 'app-user-management',
@@ -20,6 +21,7 @@ export class UserManagementComponent implements OnInit {
 
   constructor(private appservice: AppService,
     private sb: MatSnackBar,
+    public locale: LocaleService,
     private dialog: MatDialog
     ) {
     this.debounceSearch = this.appservice.debounceSearch(this.applyFilter.bind(this), 300);
@@ -46,7 +48,7 @@ export class UserManagementComponent implements OnInit {
           this.saving = false;
         },
         error: (error) => {
-          this.sb.open("Could not fetch User List", "", {
+          this.sb.open(this.locale.Locale.user.error.fetch_user, this.locale.Locale.common.failed, {
             duration: 2000
           });
           this.saving = false;
@@ -80,7 +82,7 @@ export class UserManagementComponent implements OnInit {
       width: '350px', height: '300px', data: { row, type: 'p' }
     }).afterClosed().subscribe(res => {
       if (res) {
-        this.sb.open("Password Changed Successfully", "", {
+        this.sb.open(this.locale.Locale.user.success.password_changed, this.locale.Locale.common.success, {
           duration: 2000
         });
       }
@@ -92,7 +94,7 @@ export class UserManagementComponent implements OnInit {
       let id = JSON.parse(user)._id;
       let isAdmin = JSON.parse(user).isAdmin;
       if (row._id == id) {
-        this.sb.open("Cannot Delete Self! " + (isAdmin ? "Please ask a different Administrator for Admin User Deletion" : "Please ask your Administrator for User Deletion"), "", {
+        this.sb.open(this.locale.Locale.user.alert.cannot_delete_self + (isAdmin ? this.locale.Locale.user.alert.ask_other_admin_for_self_user_delete : this.locale.Locale.user.alert.ask_admin_for_self_user_delete), this.locale.Locale.common.alert, {
           duration: 2000,
         });
         return;
@@ -102,9 +104,9 @@ export class UserManagementComponent implements OnInit {
     this.dialog.open(ConfirmationDlgComponent, {
       width: '250px', closeOnNavigation: true, autoFocus: true,
       data: {
-        Question: "Are you Sure..! Do you want to Delete this User?",
-        YesText: "Yes",
-        NoText: "No"
+        Question: this.locale.Locale.user.confirmation.delete_user,
+        YesText: this.locale.Locale.common.yes,
+        NoText: this.locale.Locale.common.no
       }
     }).afterClosed().subscribe(result => {
       if (result) {
@@ -114,13 +116,13 @@ export class UserManagementComponent implements OnInit {
             next: (response) => {
               this.userDataSource.data.splice(index, 1);
               this.userDataSource.data = this.userDataSource.data.slice();
-              this.sb.open("User Deleted Successfully", "", {
+              this.sb.open(this.locale.Locale.user.success.delete_user, this.locale.Locale.common.success, {
                 duration: 2000,
               });
               this.saving = false;
             },
             error: (error) => {
-              this.sb.open("Could not Delete User", "", {
+              this.sb.open(this.locale.Locale.user.error.delete_user, this.locale.Locale.common.failed, {
                 duration: 2000,
               });
               this.saving = false;

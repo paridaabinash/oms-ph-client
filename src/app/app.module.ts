@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { LOCALE_ID, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
@@ -28,6 +28,8 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { CdkAccordionModule } from '@angular/cdk/accordion';
 import { MatNativeDateModule, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -108,11 +110,14 @@ export const MY_FORMATS = {
     MatNativeDateModule,
     MatButtonToggleModule,
     MatExpansionModule,
-    CdkAccordionModule
+    CdkAccordionModule,
+    MatProgressSpinnerModule,
+    MatPaginatorModule
   ],
   providers: [
     { provide: MAT_DATE_LOCALE, useValue: 'en-GB' }, // Sets locale
     { provide: MAT_DATE_FORMATS, useValue: MY_FORMATS }, // Custom formats
+    { provide: LOCALE_ID, useValue: localStorage.getItem("LOCALE_ID") || "en-US" }
   ],
   bootstrap: [AppComponent]
 })

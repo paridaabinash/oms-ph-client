@@ -1,16 +1,10 @@
 <div *ngIf="saving || appservice.saving" class="content">
-  <div class="pill">
-    <div class="medicine">
-      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-    </div>
-    <div class="side"></div>
-    <div class="side"></div>
-  </div>
+  <mat-spinner color="accent"></mat-spinner>
 </div>
 
 <mat-tab-group (selectedTabChange)="onTabChange($event)">
 
-  <mat-tab label="Generic Name/ RM Stock">
+  <mat-tab label="PPIC WO">
 
     <div *ngIf="activeTabIndex === 0" class="cards_container">
       <mat-form-field class="search">
@@ -19,60 +13,69 @@
         <mat-icon matSuffix>search</mat-icon>
       </mat-form-field>
 
-      <div *ngFor="let row of temp_pendingOrderDatasource" class="single_card">
+      <div *ngFor="let row of ppic_wo_ds" class="single_card">
         <div class="head_container">
           <div class="separated_text">
-            <div>CN: </div> <div>{{row.composition_generic_name}}</div>
+            <div>Work Order No.: </div>
+            <div>{{row.wo_number}}</div>
           </div>
-          <div class="separated_text"><div>Total Qty (In Tabs):</div> <div> {{row.total_qty}}</div></div>
-          <div class="separated_text"><div>Total Pending (In Tabs):</div> <div> {{row.total_pending}}</div></div>
-          <div class="separated_text" *ngFor="let tot of row.total_required">
-            <div>Total Required Stock {{tot.rm_item_name}} (In KG's):</div>
-            <div> {{tot.required_stock}}</div>
-          </div>
-
         </div>
         <div class="table_container">
           <table *ngIf="!saving" mat-table [dataSource]="row.table" class="mat-elevation-z8 mat-table">
-            <ng-container matColumnDef="brand_name">
-              <th mat-header-cell *matHeaderCellDef class="cell"> Brand Name </th>
-              <td mat-cell *matCellDef="let row" class="cell"> {{row.brand_name}} </td>
+            <ng-container matColumnDef="item_name">
+              <th mat-header-cell *matHeaderCellDef class="cell"> RM/PM Name </th>
+              <td mat-cell *matCellDef="let row" class="cell"> {{row.item_name}} </td>
             </ng-container>
 
-            <ng-container matColumnDef="qty_in_tabs">
-              <th mat-header-cell *matHeaderCellDef class="cell"> Qty (In Tabs) </th>
-              <td mat-cell *matCellDef="let row" class="cell"> {{row.qty_in_tabs}} </td>
-            </ng-container>
-
-            <ng-container matColumnDef="pending">
-              <th mat-header-cell *matHeaderCellDef class="cell"> Pending (In Tabs) </th>
-              <td mat-cell *matCellDef="let row" class="cell"> {{row.pending}} </td>
+            <ng-container matColumnDef="calc_offset">
+              <th mat-header-cell *matHeaderCellDef class="cell"> Qty For 1 Lakh </th>
+              <td mat-cell *matCellDef="let row" class="cell"> {{row.calc_offset}} </td>
             </ng-container>
 
             <ng-container matColumnDef="required_stock">
-              <th mat-header-cell *matHeaderCellDef class="cell"> Required Stock (In KG's) </th>
+              <th mat-header-cell *matHeaderCellDef class="cell"> Required Stock </th>
               <td mat-cell *matCellDef="let row" class="cell"> {{row.required_stock}} </td>
             </ng-container>
 
-            <tr mat-header-row *matHeaderRowDef="['brand_name', 'qty_in_tabs','pending', 'required_stock']"></tr>
-            <tr mat-row *matRowDef="let row; columns: ['brand_name', 'qty_in_tabs','pending', 'required_stock'];"></tr>
+            <ng-container matColumnDef="rate">
+              <th mat-header-cell *matHeaderCellDef class="cell"> Rate of RM/PM </th>
+              <td mat-cell *matCellDef="let row" class="cell"> {{row.rate}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="present_stock">
+              <th mat-header-cell *matHeaderCellDef class="cell"> Present Stock </th>
+              <td mat-cell *matCellDef="let row" class="cell"> {{row.present_stock}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="transit">
+              <th mat-header-cell *matHeaderCellDef class="cell"> In Transit </th>
+              <td mat-cell *matCellDef="let row" class="cell"> {{row.transit}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="shortage">
+              <th mat-header-cell *matHeaderCellDef class="cell"> Shortage </th>
+              <td mat-cell *matCellDef="let row" class="cell"> {{row.shortage}} </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="['item_name', 'calc_offset', 'required_stock', 'rate', 'present_stock', 'transit', 'shortage']"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['item_name', 'calc_offset', 'required_stock', 'rate', 'present_stock', 'transit', 'shortage'];"></tr>
 
           </table>
         </div>
       </div>
     </div>
   </mat-tab>
-  <mat-tab label="BOM">
+  <!--<mat-tab label="BOM">
     <app-bom *ngIf="activeTabIndex === 1" type="bom"></app-bom>
   </mat-tab>
   <mat-tab label="Present/ PM Stock">
     <app-bom *ngIf="activeTabIndex === 2" type="present_stock"></app-bom>
-  </mat-tab>
-  <mat-tab label="Under Test RM Stock">
+  </mat-tab>-->
+  <!--<mat-tab label="Under Test RM Stock">
     <app-report *ngIf="activeTabIndex === 3" type="under_test_stock_report" [displayedColumns]="appservice.underTestStock"></app-report>
-  </mat-tab>
-  <mat-tab label="Shortages">
-    <app-report *ngIf="activeTabIndex === 4" type="shortages" [displayedColumns]="appservice.shortagesDS" [staticDS]="shortagesReportDS" [isStatic]="true"></app-report>
+  </mat-tab>-->
+  <mat-tab label="PPIC WO">
+    <app-report *ngIf="activeTabIndex === 1" type="ppic_wo_ds" [displayedColumns]="appservice.ppic_wo_ds" [staticDS]="ppic_wo_ds" [isStatic]="true"></app-report>
   </mat-tab>
 </mat-tab-group>
 

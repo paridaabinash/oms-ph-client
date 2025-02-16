@@ -49,7 +49,7 @@ export class MasterDlgComponent implements OnInit {
         this.dialogData.orderMaster[this.dialogData.col.colname].push(res);
         this.dialogData.reportDS[this.dialogData.index].selection_list.push(res);
         this.dialogData.reportDS[this.dialogData.index].selection_list = this.dialogData.reportDS[this.dialogData.index].selection_list.slice()
-        this.colMaster = this.colMaster.slice()
+        this.colMaster = this.dialogData.reportDS[this.dialogData.index].selection_list.slice()
       }
     });
   }
@@ -63,7 +63,7 @@ export class MasterDlgComponent implements OnInit {
         this.dialogData.orderMaster[this.dialogData.col.colname].splice(index, 1, res);
         this.dialogData.reportDS[this.dialogData.index].selection_list.splice(index, 1, res);
         this.dialogData.reportDS[this.dialogData.index].selection_list = this.dialogData.reportDS[this.dialogData.index].selection_list.slice()
-        this.colMaster = this.colMaster.slice()
+        this.colMaster = this.dialogData.reportDS[this.dialogData.index].selection_list.slice()
       }
     });
   }
@@ -81,6 +81,7 @@ export class MasterDlgComponent implements OnInit {
         this.dialogData.orderMaster[this.dialogData.col.colname].splice(index, 1);
         this.dialogData.reportDS[this.dialogData.index].selection_list.splice(index, 1);
         this.dialogData.reportDS[this.dialogData.index].selection_list = this.dialogData.reportDS[this.dialogData.index].selection_list.slice()
+        this.colMaster = this.dialogData.reportDS[this.dialogData.index].selection_list.slice()
       }
     })
   }
