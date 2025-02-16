@@ -88,7 +88,7 @@ export class MasterComponent implements OnInit {
     let index = this.reportDS.findIndex(cl => cl.colname == col.colname);
 
     this.dialog.open(MasterDlgComponent, {
-      width: '80%', height: 'auto', maxHeight: '80vh', data: { col, index, reportDS: this.reportDS, orderMaster: JSON.parse(JSON.stringify(this.orderMaster)), ds: this.displayedColumns, type: this.type }
+      width: '80%', height: 'auto', data: { col, index, reportDS: this.reportDS, orderMaster: JSON.parse(JSON.stringify(this.orderMaster)), ds: this.displayedColumns, type: this.type }
     }).afterClosed().subscribe(res => {
       if (res) {
       }

@@ -6,22 +6,12 @@
   overflow: hidden;
 }
 
-.table-header {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-}
-
 .table-container {
   width: 100%;
   overflow: auto;
-  max-height: calc(100vh - 190px); /* 80px of filter */
+  max-height: calc(90vh - 80px);
 }
 
 .mat-header-cell, .mat-cell {
   white-space: nowrap;
-}
-
-th:last-child, td:last-child {
-  width: 5em;
 }

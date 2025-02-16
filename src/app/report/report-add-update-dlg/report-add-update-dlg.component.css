@@ -17,8 +17,6 @@
   bottom: 0;
   right: 0;
   background-color: white;
-  padding: 15px;
-  z-index: 1;
 }
 
 table th,
@@ -48,20 +46,4 @@ table td {
   font-size: 16px; /* Adjust size as needed */
   width: 20px; /* Adjust width as needed */
   height: 20px;
-}
-
-.table-header {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-}
-
-.table-container {
-  width: 100%;
-  overflow: auto;
-  max-height: 30vh;
-}
-
-.mat-header-cell, .mat-cell {
-  white-space: nowrap;
 }

@@ -4,7 +4,6 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDlgComponent } from '../common/confirmation-dlg/confirmation-dlg.component';
 import { AppService } from '../app.service';
-import { Router } from '@angular/router';
 
 
 @Component({
@@ -14,26 +13,24 @@ import { Router } from '@angular/router';
 })
 export class HomeComponent implements OnInit {
   saving = false;
+  user: any = null;
   @ViewChild(MatSidenav) sidenav!: MatSidenav;
   isMobile = false;
   isCollapsed = true;
   isSidenavLoaded: boolean = false;
-  selectedMenu = 'dashboard';
-  view_access = {};
+  selectedMenu = 'dashboard'
 
   constructor(private observer: BreakpointObserver,
     private dialog: MatDialog,
     public appservice: AppService,
-    public route: Router,
     private cdr: ChangeDetectorRef) { }
 
   ngOnInit() {
     let user = sessionStorage.getItem('user') ?? null;
     if (user)
-      this.appservice.user = JSON.parse(user);
-    else {
-      this.route.navigate(['']);
-    }
+      this.user = JSON.parse(user);
+
+
   }
 
   ngAfterViewInit() {

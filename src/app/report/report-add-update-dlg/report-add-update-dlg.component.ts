@@ -1,13 +1,13 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { AppService } from '../../app.service';
+import { Router } from '@angular/router';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Observable, lastValueFrom, Subscription, merge } from 'rxjs';
 import { map, startWith, debounceTime } from 'rxjs/operators';
 import { MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { DatePipe } from '@angular/common';
-import { ConfirmationDlgComponent } from '../../common/confirmation-dlg/confirmation-dlg.component';
 
 @Component({
   selector: 'app-report-add-update-dlg',
@@ -23,12 +23,11 @@ export class ReportAddUpdateDlgComponent implements OnInit {
   orderMaster: any = {};
   productMasterDS: any[] = [];
   controlArrayValue: any = {};
-
   private subscription: Subscription = new Subscription();
 
   constructor(public appservice: AppService,
     private sb: MatSnackBar,
-    private dialog: MatDialog,
+    private datePipe: DatePipe,
     @Inject(MAT_DIALOG_DATA) public dialogData: any,
     public dialogref: MatDialogRef<ReportAddUpdateDlgComponent>
   ) {
@@ -39,7 +38,6 @@ export class ReportAddUpdateDlgComponent implements OnInit {
   }
 
   async ngOnInit() {
-
     switch (this.dialogData.type) {
       case 'order_report': this.dlgHeading = !this.dialogData.row ? 'Add New Order Report' : 'Update Order Report'; break;
       case 'art_report': this.dlgHeading = !this.dialogData.row ? 'Add New Artwork Report' : 'Update Artwork Report'; break;
@@ -47,12 +45,9 @@ export class ReportAddUpdateDlgComponent implements OnInit {
       case 'pm_report': this.dlgHeading = !this.dialogData.row ? 'Add New PM Report' : 'Update PM Report'; break;
       case 'under_test_stock_report': this.dlgHeading = !this.dialogData.row ? 'Add New Under Test Report' : 'Update Under Test Report'; break;
       case 'composition_master': this.dlgHeading = !this.dialogData.row ? 'Add New Composition Master' : 'Update Composition Master'; break;
-      case 'packaging_master': this.dlgHeading = !this.dialogData.row ? 'Add New Packing Master' : 'Update Packing Master'; break;
       case 'rm_master': this.dlgHeading = !this.dialogData.row ? 'Add New RM Master' : 'Update RM Master'; break;
-      case 'pm_stock_master': this.dlgHeading = !this.dialogData.row ? 'Add New PM Stock Master' : 'Update PM Stock Master'; break;
-      case 'brand_master': this.dlgHeading = !this.dialogData.row ? 'Add New Brand Master' : 'Update Brand Master'; break;
-      case 'brand_master_rm': this.dlgHeading = !this.dialogData.row ? 'Add New RM Linking' : 'Update RM Linking'; break;
-      case 'brand_master_pm': this.dlgHeading = !this.dialogData.row ? 'Add New PM Linking' : 'Update PM Linking'; break;
+      case 'pm_stock_master': this.dlgHeading = !this.dialogData.row ? 'Add New RM Stock Master' : 'Update RM Stock Master'; break;
+      case 'packaging_master': this.dlgHeading = !this.dialogData.row ? 'Add New Packing Master' : 'Update Packing Master'; break;
       default:
         throw new Error('Invalid report type');
     }
@@ -89,17 +84,6 @@ export class ReportAddUpdateDlgComponent implements OnInit {
         catch (error) {
           console.error("Could not fetch Images", error);
         }
-      }
-      if (this.dialogData.type == 'brand_master') {
-        if (this.dialogData.row) {
-          this.appservice.brandStockMaster[1].ds = this.dialogData.row['rm_item_name_list'];
-          this.appservice.brandStockMaster[2].ds = this.dialogData.row['pm_item_name_list'];
-        } else {
-          this.appservice.brandStockMaster[1].ds = [];
-          this.appservice.brandStockMaster[2].ds = [];
-
-        }
-
       }
 
       this.setupAutocompleteFilters();
@@ -163,27 +147,15 @@ export class ReportAddUpdateDlgComponent implements OnInit {
   //    this.controlArrayValue[controlName] = [];
   //  this.controlArrayValue[controlName].push(sel_el._id);
   //}
-
-  onBlur(selection_list: string[], form_ctrl: string, ind: any) {
-    setTimeout(() => {
-      if (selection_list && !selection_list.includes(this.form.get(form_ctrl)?.value)) {
-        //console.log(this.dialogData.ds[ind], form_ctrl, this.form.get(form_ctrl)?.value, !selection_list.includes(this.form.get(form_ctrl)?.value))
-        this.form.patchValue({ form_ctrl: "" })
-        //console.log(this.form.value, this.form.get(form_ctrl)?.value)
-      }
-    });
-  }
-
   async onMasterSelectionChange(event: any, controlName: string, isMaster: boolean) {
-
-    if (!isMaster || this.dialogData.type == 'composition_master' || this.dialogData.type == 'packaging_master' || this.dialogData.type == 'rm_master' || this.dialogData.type == 'pm_stock_master' || this.dialogData.type == 'brand_master_rm' || this.dialogData.type == 'brand_master_pm' || this.dialogData.type == 'brand_master') {
+    if (!isMaster || this.dialogData.type == 'composition_master' || this.dialogData.type == 'packaging_master' || this.dialogData.type == 'rm_master' || this.dialogData.type == 'pm_stock_master') {
       return;
     }
     let selectedValue = event.option.value;
     let form = this.form;
     this.saving = true;
     if (this.dialogData.type == 'rm_report')
-      selectedValue = form.value.rm_item_name
+      selectedValue = form.value.rm_item_name.replace(/[^a-zA-Z0-9]/g, '_')
     try {
       let res = await lastValueFrom(this.appservice.GetLinkingMasterById(selectedValue))
       if (res) {
@@ -248,7 +220,6 @@ export class ReportAddUpdateDlgComponent implements OnInit {
     form_val.type = this.dialogData.type;
     let saveFunc: Observable<any>, type = '';
     switch (this.dialogData.type) {
-
       case 'order_report': saveFunc = this.dialogData.row ? this.appservice.UpdateReport(form_val) : this.appservice.CreateReport(form_val); type = "Order"; break;
       case 'art_report': saveFunc = this.appservice.UpdateReport(form_val); type = "Artwork"; break;
       case 'rm_report': saveFunc = this.dialogData.row ? this.appservice.UpdateReport(form_val) : this.appservice.CreateReport(form_val); type = "RM"; break;
@@ -257,10 +228,7 @@ export class ReportAddUpdateDlgComponent implements OnInit {
       case 'composition_master':
       case 'rm_master':
       case 'pm_stock_master':
-      case 'brand_master':
       case 'packaging_master': saveFunc = this.dialogData.row ? this.appservice.UpdateLinkingMaster(form_val) : this.appservice.CreateLinkingMaster(form_val); type = "Master Linking"; break;
-      case 'brand_master_rm':
-      case 'brand_master_pm': this.dialogref.close(form_val); return;
       default:
         throw new Error('Invalid report type');
     }
@@ -277,7 +245,7 @@ export class ReportAddUpdateDlgComponent implements OnInit {
             master_changed = true;
           }
         }
-        if (master_changed) { // add name to order_report_selection_list for use as key
+        if (master_changed) {
           try {
             let res = await lastValueFrom(this.appservice.SetOrderMaster(this.orderMaster))
             if (res)
@@ -291,8 +259,6 @@ export class ReportAddUpdateDlgComponent implements OnInit {
             });
           }
         }
-        this.appservice.brandStockMaster[1].ds = [];
-        this.appservice.brandStockMaster[2].ds = [];
       }
       if (type == 'Order' && form_val.order_type.toLowerCase() == 'new') {
         let artwork: any = {};
@@ -416,8 +382,6 @@ export class ReportAddUpdateDlgComponent implements OnInit {
         qty_in_tabs_val = parseInt(order_qty);
       }
       form_ctrl['qty_in_tabs'].patchValue(qty_in_tabs_val);
-    } else {
-      form_ctrl['qty_in_tabs'].patchValue(null);
     }
 
     let qty_in_tabs = form_ctrl['qty_in_tabs'].value,
@@ -426,15 +390,10 @@ export class ReportAddUpdateDlgComponent implements OnInit {
 
     if (qty_in_tabs) {
       form_ctrl['balance_qty'].patchValue(parseInt(qty_in_tabs) - parseInt(rfd ? rfd : 0) - parseInt(dispatch ? dispatch : 0));
-    } else {
-      form_ctrl['balance_qty'].patchValue(0);
     }
     if (dispatch) {
       form_ctrl['yield'].patchValue((parseInt(dispatch) / parseInt(qty_in_tabs)) * 100);
       form_ctrl['order_status'].patchValue((parseInt(dispatch) / parseInt(qty_in_tabs)) * 100 > 95 ? 'Completed' : 'Pending')
-    } else {
-      form_ctrl['yield'].patchValue(0);
-      form_ctrl['order_status'].patchValue('Pending');
     }
   }
   handleRMCalculation(value: any, form_ctrl: any) {
@@ -469,68 +428,4 @@ export class ReportAddUpdateDlgComponent implements OnInit {
     }
   }
 
-
-
-
-  getDisplayedCol(expansion_table: string) {
-    return (this.appservice as any)[expansion_table];
-  }
-  getDisplayedColumns(expansion_table: string) {
-    return ((this.appservice as any)[expansion_table] as any[]).map(col => col.colname).concat("action");
-  }
-  addRow(item: any, displayedColumns: any, type: string) {
-    this.dialog.open(ReportAddUpdateDlgComponent, {
-      width: '90%', height: 'auto', data: { ds: this.getDisplayedCol(displayedColumns), type: type }, autoFocus: false
-    }).afterClosed().subscribe(res => {
-      if (res) {
-        item.ds.push(res);
-        item.ds = item.ds.slice();
-        this.form.get(item.colname)?.setValue(item.ds);
-      }
-    });
-  }
-  updateRow(row: any, index: number, item: any, displayedColumns: any, type: string) {
-
-    this.dialog.open(ReportAddUpdateDlgComponent, {
-      width: '90%', height: 'auto', data: { row, ds: this.getDisplayedCol(displayedColumns), type: type }, autoFocus: false
-    }).afterClosed().subscribe(res => {
-      if (res) {
-        item.ds.splice(index, 1, res);
-        item.ds = item.ds.slice();
-        this.form.get(item.colname)?.setValue(item.ds);
-      }
-    });
-  }
-  deleteRow(row: any, index: number, item: any) {
-    this.dialog.open(ConfirmationDlgComponent, {
-      width: '250px', closeOnNavigation: true, autoFocus: true,
-      data: {
-        Question: "Are you Sure..! Do you want to Delete this Entry?",
-        YesText: "Yes",
-        NoText: "No"
-      }
-    }).afterClosed().subscribe(result => {
-      if (result) {
-        item.ds.splice(index, 1);
-        item.ds = item.ds.slice();
-        this.form.get(item.colname)?.setValue(item.ds);
-      }
-    });
-  }
-
-  userAccessCheck(type: string = this.dialogData.type) {
-    let user: any = this.appservice.user;
-    let view_access: any = {
-      order_report: user.role == "Admin" || user.role == "Sales" || user.role == "Production" || user.role == "Dispatch" || user.role == "PPIC",
-      art_report: user.role == "Admin" || user.role == "Artwork",
-      rm_report: user.role == "Admin" || user.role == "PPIC",
-      pm_report: user.role == "Admin" || user.role == "PPIC",
-      ppic_report: user.role == "Admin" || user.role == "PPIC"
-    }
-    if (type.includes("master"))
-      return user.role == "Admin"
-    if (type in view_access)
-      return view_access[type];
-    return false;
-  }
 }

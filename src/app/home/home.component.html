@@ -11,9 +11,9 @@
     </div>
 
     <div class="toolbar-user">
-      <mat-icon *ngIf="!appservice.user.isAdmin">person_outline</mat-icon>
-      <mat-icon *ngIf="appservice.user.isAdmin">security</mat-icon>
-      <h3>{{appservice.user.displayname}}</h3>
+      <mat-icon *ngIf="!user.isAdmin">person_outline</mat-icon>
+      <mat-icon *ngIf="user.isAdmin">security</mat-icon>
+      <h3>{{user.displayname}}</h3>
       <button mat-icon-button matTooltip="Logout" class="logout" (click)="logout()"><mat-icon>exit_to_app</mat-icon></button>
     </div>
   </div>
@@ -80,35 +80,34 @@
       </mat-nav-list>
 
       <br />
-      <ng-container *ngIf="appservice.user.role == 'Admin'">
-        <div class="menu-header">SETTINGS</div>
-        <mat-nav-list>
-          <a mat-list-item (click)="selectedMenu = 'user_mgmt'; menuClick();" class="list_anchor" [ngClass]="{'activated': selectedMenu === 'user_mgmt'}">
-            <span class="entry">
-              <mat-icon>settings_applications</mat-icon>
-              <span>User Management</span>
-            </span>
-          </a>
-        </mat-nav-list>
+      <div class="menu-header">SETTINGS</div>
+      <mat-nav-list>
+        <a mat-list-item (click)="selectedMenu = 'user_mgmt'; menuClick();" class="list_anchor" [ngClass]="{'activated': selectedMenu === 'user_mgmt'}">
+          <span class="entry">
+            <mat-icon>settings_applications</mat-icon>
+            <span>User Management</span>
+          </span>
+        </a>
+      </mat-nav-list>
 
-        <mat-nav-list>
-          <a mat-list-item (click)="selectedMenu = 'master'; menuClick();" class="list_anchor" [ngClass]="{'activated': selectedMenu === 'master'}">
-            <span class="entry">
-              <mat-icon>av_timer</mat-icon>
-              <span>Master</span>
-            </span>
-          </a>
-        </mat-nav-list>
+      <mat-nav-list>
+        <a mat-list-item (click)="selectedMenu = 'master'; menuClick();" class="list_anchor" [ngClass]="{'activated': selectedMenu === 'master'}">
+          <span class="entry">
+            <mat-icon>av_timer</mat-icon>
+            <span>Master</span>
+          </span>
+        </a>
+      </mat-nav-list>
 
-        <mat-nav-list>
-          <a mat-list-item (click)="selectedMenu = 'linking_master'; menuClick();" class="list_anchor" [ngClass]="{'activated': selectedMenu === 'linking_master'}">
-            <span class="entry">
-              <mat-icon>format_paint</mat-icon>
-              <span>Linking Master</span>
-            </span>
-          </a>
-        </mat-nav-list>
-      </ng-container>
+      <mat-nav-list>
+        <a mat-list-item (click)="selectedMenu = 'linking_master'; menuClick();" class="list_anchor" [ngClass]="{'activated': selectedMenu === 'linking_master'}">
+          <span class="entry">
+            <mat-icon>format_paint</mat-icon>
+            <span>Linking Master</span>
+          </span>
+        </a>
+      </mat-nav-list>
+
     </div>
   </mat-sidenav>
   <mat-sidenav-content>
