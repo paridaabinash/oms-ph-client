@@ -1,13 +1,14 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, ElementRef, ViewChild } from '@angular/core';
 import { AppService } from '../../app.service';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Observable, lastValueFrom, Subscription, merge } from 'rxjs';
 import { map, startWith, debounceTime } from 'rxjs/operators';
-import { MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { DatePipe } from '@angular/common';
 import { ConfirmationDlgComponent } from '../../common/confirmation-dlg/confirmation-dlg.component';
+import { LocaleService } from '../../common/locale/locale.service';
+import { ExcelService } from '../../excel.service';
 
 @Component({
   selector: 'app-report-add-update-dlg',
@@ -23,12 +24,18 @@ export class ReportAddUpdateDlgComponent implements OnInit {
   orderMaster: any = {};
   productMasterDS: any[] = [];
   controlArrayValue: any = {};
-
+  @ViewChild('form_elem') form_elem!: ElementRef;
   private subscription: Subscription = new Subscription();
+
+  clicked_heading: string[] = [];
+  exportHeader: string = "";
+  worker!: Worker;
 
   constructor(public appservice: AppService,
     private sb: MatSnackBar,
+    public locale: LocaleService,
     private dialog: MatDialog,
+    private excelService: ExcelService,
     @Inject(MAT_DIALOG_DATA) public dialogData: any,
     public dialogref: MatDialogRef<ReportAddUpdateDlgComponent>
   ) {
@@ -39,6 +46,18 @@ export class ReportAddUpdateDlgComponent implements OnInit {
   }
 
   async ngOnInit() {
+    const exportHeaders: Record<string, string> = {
+      'order_report': 'Order Report',
+      'art_report': 'Art Report',
+      'rm_report': 'RM Report',
+      'pm_report': 'PM Report'
+    };
+    this.exportHeader = exportHeaders[this.dialogData.type];
+    if (this.appservice.user.role != 'Admin') {
+      Object.keys(this.locale.Locale.user.roles).forEach(role => {
+        if (this.appservice.user.role != role) this.clicked_heading.push(role)
+      });
+    }
 
     switch (this.dialogData.type) {
       case 'order_report': this.dlgHeading = !this.dialogData.row ? 'Add New Order Report' : 'Update Order Report'; break;
@@ -101,6 +120,12 @@ export class ReportAddUpdateDlgComponent implements OnInit {
         }
 
       }
+      if (this.dialogData.type == 'rm_report' || this.dialogData.type == 'pm_report') {
+        const ord_res: any[] = await lastValueFrom(this.appservice.GetAllFilterReports("pendingOrders", false, null));
+        if (ord_res) {
+          this.dialogData.ds[1].selection_list = ord_res.map(res => res.id); // "wo_number"
+        }
+      }
 
       this.setupAutocompleteFilters();
       this.manualInputChange();
@@ -110,7 +135,7 @@ export class ReportAddUpdateDlgComponent implements OnInit {
         this.handleQtyInTabs(null, this.form.controls)
 
       if (this.dialogData.type == 'rm_report')
-        this.handleRMCalculation(null, this.form.controls)
+        this.handleRMPMPendingCalculation(null, this.form.controls)
 
       if (this.dialogData.type == 'pm_report')
         this.handlePMCalculation(null, this.form.controls)
@@ -127,27 +152,31 @@ export class ReportAddUpdateDlgComponent implements OnInit {
   setupAutocompleteFilters() {
     let form = this.form;
     (this.dialogData.ds as any[]).forEach(item => {
-      const controlval = this.dialogData.row ? this.dialogData.row[item.colname] : (item.isarray ? [] : ("default" in item ? item.default : ''));
+      if (!item.heading) { //skipping heading rows in order_report
+        const controlval = this.dialogData.row ? this.dialogData.row[item.colname] : (item.isarray ? [] : ("default" in item ? item.default : ''));
 
-      (form.get(item.colname) as FormControl).setValue(controlval);
+        (form.get(item.colname) as FormControl).setValue(controlval);
 
-      const fcontrol = form.get(item.colname) as FormControl;
-      if (item.autofill && this.dialogData.type.includes('_report'))
-        fcontrol.disable();
-      if (item.autocomplete) {
-        this.filteredOptions[item.colname] =
-          fcontrol.valueChanges.pipe(
-            debounceTime(300),
-            startWith(''),
-          ).pipe(
-            map(value => this._filter(value || '', item.selection_list))
-          );
+        const fcontrol = form.get(item.colname) as FormControl;
+        if (this.appservice.user.role != 'Admin' && item.right && item.right != this.appservice.user.role)
+          fcontrol.disable();
+        if (item.autofill && this.dialogData.type.includes('_report'))
+          fcontrol.disable();
+        if (item.autocomplete) {
+          this.filteredOptions[item.colname] =
+            fcontrol.valueChanges.pipe(
+              debounceTime(300),
+              startWith(''),
+            ).pipe(
+              map(value => this._filter(value || '', item.selection_list))
+            );
+        }
       }
     });
-    if (this.dialogData.type == 'order_report') { // extra data that should not show in report or form, just save for different prps
-      if (this.dialogData.row && this.dialogData.row['rm_item_name'])
-        form.addControl('rm_item_name', new FormControl(this.dialogData.row['rm_item_name']));
-    }
+    //if (this.dialogData.type == 'order_report') { // extra data that should not show in report or form, just save for different prps
+    //  if (this.dialogData.row && this.dialogData.row['rm_item_name'])
+    //    form.addControl('rm_item_name', new FormControl(this.dialogData.row['rm_item_name']));
+    //}
   }
 
   private _filter(value: any, options: any[]): string[] {
@@ -174,7 +203,7 @@ export class ReportAddUpdateDlgComponent implements OnInit {
     });
   }
 
-  async onMasterSelectionChange(event: any, controlName: string, isMaster: boolean) {
+  async onMasterSelectionChange(event: any, controlName: string, isMaster: boolean, order_master: boolean) {
 
     if (!isMaster || this.dialogData.type == 'composition_master' || this.dialogData.type == 'packaging_master' || this.dialogData.type == 'rm_master' || this.dialogData.type == 'pm_stock_master' || this.dialogData.type == 'brand_master_rm' || this.dialogData.type == 'brand_master_pm' || this.dialogData.type == 'brand_master') {
       return;
@@ -182,10 +211,10 @@ export class ReportAddUpdateDlgComponent implements OnInit {
     let selectedValue = event.option.value;
     let form = this.form;
     this.saving = true;
-    if (this.dialogData.type == 'rm_report')
-      selectedValue = form.value.rm_item_name
+
+    let getMaster = order_master ? this.appservice.GetReportById(selectedValue) : this.appservice.GetLinkingMasterById(selectedValue)
     try {
-      let res = await lastValueFrom(this.appservice.GetLinkingMasterById(selectedValue))
+      let res = await lastValueFrom(getMaster)
       if (res) {
         for (let field in res) {
           let contrl = (form.get(field) as FormControl);
@@ -242,6 +271,8 @@ export class ReportAddUpdateDlgComponent implements OnInit {
     if (this.dialogData.row) {
       form_val._id = this.dialogData.row._id;
       form_val._rev = this.dialogData.row._rev;
+    } else {
+      form_val.created_at = Date.now();
     }
     let master_changed = false;
 
@@ -397,11 +428,14 @@ export class ReportAddUpdateDlgComponent implements OnInit {
     if (this.dialogData.type == 'rm_report') {
       this.subscription = merge(
         form_ctrl['po_quantity'].valueChanges,
-        form_ctrl['qty_recieved'].valueChanges).subscribe(value => this.handleRMCalculation(value, form_ctrl));
+        form_ctrl['qty_recieved'].valueChanges).subscribe(value => this.handleRMPMPendingCalculation(value, form_ctrl));
     }
     if (this.dialogData.type == 'pm_report') {
       this.subscription = merge(
         form_ctrl['po_date'].valueChanges).subscribe(value => this.handlePMCalculation(value, form_ctrl));
+      this.subscription = merge(
+        form_ctrl['po_quantity'].valueChanges,
+        form_ctrl['qty_recieved'].valueChanges).subscribe(value => this.handleRMPMPendingCalculation(value, form_ctrl));
     }
   }
   handleQtyInTabs(value: any, form_ctrl: any) {
@@ -411,9 +445,9 @@ export class ReportAddUpdateDlgComponent implements OnInit {
 
     if (pack_type && order_qty) {
       if (pack_type.includes('*')) {
-        qty_in_tabs_val = (pack_type.split('*') as any[]).reduce((acc, cum) => parseInt(acc) * parseInt(cum)) * parseInt(order_qty);
+        qty_in_tabs_val = (pack_type.split('*') as any[]).reduce((acc, cum) => parseFloat(acc) * parseFloat(cum)) * parseFloat(order_qty);
       } else {
-        qty_in_tabs_val = parseInt(order_qty);
+        qty_in_tabs_val = parseFloat(order_qty);
       }
       form_ctrl['qty_in_tabs'].patchValue(qty_in_tabs_val);
     } else {
@@ -425,23 +459,25 @@ export class ReportAddUpdateDlgComponent implements OnInit {
       dispatch = form_ctrl['dispatch'].value;
 
     if (qty_in_tabs) {
-      form_ctrl['balance_qty'].patchValue(parseInt(qty_in_tabs) - parseInt(rfd ? rfd : 0) - parseInt(dispatch ? dispatch : 0));
+      form_ctrl['balance_qty'].patchValue(parseFloat(qty_in_tabs) - parseFloat(rfd ? rfd : 0) - parseFloat(dispatch ? dispatch : 0));
     } else {
       form_ctrl['balance_qty'].patchValue(0);
     }
     if (dispatch) {
-      form_ctrl['yield'].patchValue((parseInt(dispatch) / parseInt(qty_in_tabs)) * 100);
-      form_ctrl['order_status'].patchValue((parseInt(dispatch) / parseInt(qty_in_tabs)) * 100 > 95 ? 'Completed' : 'Pending')
+      form_ctrl['yield'].patchValue((parseFloat(dispatch) / parseFloat(qty_in_tabs)) * 100);
+      form_ctrl['order_status'].patchValue((parseFloat(dispatch) / parseFloat(qty_in_tabs)) * 100 > 95 ? 'Completed' : 'Pending')
     } else {
       form_ctrl['yield'].patchValue(0);
       form_ctrl['order_status'].patchValue('Pending');
     }
   }
-  handleRMCalculation(value: any, form_ctrl: any) {
+  handleRMPMPendingCalculation(value: any, form_ctrl: any) {
     let po_quantity = form_ctrl['po_quantity'].value,
       qty_recieved = form_ctrl['qty_recieved'].value;
     if (po_quantity)
-      form_ctrl['pending'].patchValue(parseInt(po_quantity) - parseInt(qty_recieved ? qty_recieved : 0));
+      form_ctrl['pending'].patchValue(parseFloat(po_quantity) - parseFloat(qty_recieved ? qty_recieved : 0));
+    else
+      form_ctrl['pending'].patchValue(0);
   }
   handlePMCalculation(value: any, form_ctrl: any) {
     let po_date = form_ctrl['po_date'].value;
@@ -532,5 +568,16 @@ export class ReportAddUpdateDlgComponent implements OnInit {
     if (type in view_access)
       return view_access[type];
     return false;
+  }
+
+  headingClicked(heading: string) {
+    if (this.clicked_heading.includes(heading))
+      this.clicked_heading.splice(this.clicked_heading.indexOf(heading), 1);
+    else
+      this.clicked_heading.push(heading);
+  }
+
+  exportToExcel(): void {
+    this.excelService.generateExcel("single", this.dialogData.ds, this.dialogData.row, this.exportHeader, this.dialogData.type + "_" + this.dialogData.row._id);
   }
 }

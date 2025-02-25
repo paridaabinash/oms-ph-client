@@ -16,6 +16,8 @@ export class PpicReportComponent implements OnInit {
   ppic_all_ds: any[] = [];// MatTableDataSource<any> = new MatTableDataSource<any>();
   ppic_wo_ds: any[] = [];// MatTableDataSource<any> = new MatTableDataSource<any>();
 
+  ppic_all_rm: any[] = [];
+  ppic_all_pm: any[] = [];
   activeTabIndex: number = 0;
   shortages_temp: any = {};
   constructor(public appservice: AppService,
@@ -29,12 +31,12 @@ export class PpicReportComponent implements OnInit {
     this.saving = true;
 
     try {
-      const response = await lastValueFrom(this.appservice.GetAllFilterReports('pendingOrders'));
+      const response = await lastValueFrom(this.appservice.GetAllFilterReports('pendingOrders', true, null));
       if (response) {
         let brand_name_list: any = {};
         (response as any[]).forEach(res => {
           let doc = res.doc as any;
-          brand_name_list[doc.brand_name] = ''
+          brand_name_list[doc.brand_name] = { wo: doc._id };
         });
         if (Object.keys(brand_name_list).length > 0) {
           const brand_masters_resp = await lastValueFrom(this.appservice.GetLinkingMasterByIds('brandStockMaster', Object.keys(brand_name_list)));
@@ -46,6 +48,7 @@ export class PpicReportComponent implements OnInit {
                 (doc.rm_item_name_list as any[]).forEach(item => rm_pm_name_list[item.rm_item_name] = item);
               if (doc.pm_item_name_list)
                 (doc.pm_item_name_list as any[]).forEach(item => rm_pm_name_list[item.pm_item_name] = item);
+              
             });
             const rm_pm_name_list_resp = await lastValueFrom(this.appservice.GetLinkingMasterByIds('rmAndpmList', Object.keys(rm_pm_name_list)));
             if (rm_pm_name_list_resp) {
@@ -54,8 +57,8 @@ export class PpicReportComponent implements OnInit {
                 rm_pm_name_list[res.id].rate = res.value.rate;
               });
             }
-
-            // .match(/[\/\?\#\&\=]/g) to avoid in validation
+            console.log(brand_name_list, rm_pm_name_list);
+           
 
 
               //if (!(doc.composition_generic_name in comp_obj)) {

@@ -23,7 +23,7 @@ export class UserManagementComponent implements OnInit {
     private sb: MatSnackBar,
     public locale: LocaleService,
     private dialog: MatDialog
-    ) {
+  ) {
     this.debounceSearch = this.appservice.debounceSearch(this.applyFilter.bind(this), 300);
     this.userDataSource = new MatTableDataSource<any>([]);
     this.userDataSource.filterPredicate = (data, filter: string): boolean => {
@@ -40,9 +40,7 @@ export class UserManagementComponent implements OnInit {
       .subscribe({
         next: (response) => {
           (response.response as any[]).forEach(res => {
-            if (res.doc._id != '1') {
-              this.userDataSource.data.push(res.doc)
-            }
+            this.userDataSource.data.push(res.doc)
           });
           this.userDataSource.data = this.userDataSource.data.slice()
           this.saving = false;
@@ -100,7 +98,7 @@ export class UserManagementComponent implements OnInit {
         return;
       }
     }
-      
+
     this.dialog.open(ConfirmationDlgComponent, {
       width: '250px', closeOnNavigation: true, autoFocus: true,
       data: {

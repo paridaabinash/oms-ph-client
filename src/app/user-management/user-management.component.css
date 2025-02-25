@@ -3,7 +3,6 @@
   flex-direction: column;
   height: 100%;
   align-content: stretch;
-  
 }
 
 table {
@@ -16,3 +15,8 @@ table td {
   border: 1px solid var(--table-grey);
 }
 
+.table-container {
+  width: 100%;
+  overflow: auto;
+  max-height: calc(100vh - 150px); /* 80px of filter */
+}

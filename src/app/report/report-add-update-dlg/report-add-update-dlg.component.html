@@ -1,9 +1,24 @@
 <mat-progress-bar role="progressbar" aria-label="Loading progress" class="progressbar" value="100" color="accent" [mode]="!saving ? 'determinate' : 'indeterminate'"></mat-progress-bar>
 <h3 mat-dialog-title cdkDrag cdkDragBoundary=".cdk-global-overlay-wrapper" cdkDragRootElement=".cdk-overlay-pane" class="mat-dialog-title draggable dialog-header" cdkDragHandle>
-  {{dlgHeading}}
+  <span>
+    {{dlgHeading}}
+    <span style="font-size: 14px; padding-left: 10px">{{'Created at: ' + (dialogData.row ? (appservice.getDateTimeString(dialogData.row.created_at) ?? "") : appservice.getDateTimeString())}}</span>
+  </span>
+  <button *ngIf="exportHeader" mat-icon-button (click)="exportToExcel()" matTooltip="Excel Export" class="icon-btn"><mat-icon>file_download</mat-icon></button>
 </h3>
-<form [formGroup]="form" class="dialog-body report-form">
-  <div *ngFor="let item of dialogData.ds; let index = index" [ngStyle]="{'width': item.width ? item.width : 'auto'}">
+<form [formGroup]="form" class="dialog-body report-form" #form_elem>
+  <div *ngFor="let item of dialogData.ds; let index = index" [ngStyle]="{'width': item.width ? item.width : 'auto'}" [hidden]="clicked_heading.includes(item.right)">
+
+
+    <ng-container *ngIf="item.heading;">
+      <div class="inner-heading" (click)="headingClicked(item.name)">
+        {{item.name}}
+        <mat-icon class="inner-icon" *ngIf="clicked_heading.includes(item.name)">keyboard_arrow_down</mat-icon>
+        <mat-icon class="inner-icon" *ngIf="!clicked_heading.includes(item.name)">keyboard_arrow_up</mat-icon>
+      </div>
+    </ng-container>
+    <ng-template #emptyBlock></ng-template>
+
 
     <ng-container *ngIf="item.toggle">
       <mat-label>{{ item.name }}</mat-label>
@@ -28,7 +43,7 @@
       </div>
     </ng-container>
 
-    <ng-container *ngIf="item.expansion_table; else checkFormField" >
+    <ng-container *ngIf="item.expansion_table; else checkFormField">
       <mat-expansion-panel expanded="true">
         <mat-expansion-panel-header>
           <mat-panel-title> {{item.name}} </mat-panel-title>
@@ -67,7 +82,7 @@
     </ng-container>
 
     <ng-template #checkFormField>
-      <mat-form-field *ngIf="!item.toggle && !item.image" appearance="outline" [ngStyle]="{'width': item.width ? item.width : 'auto'}">
+      <mat-form-field *ngIf="!item.toggle && !item.image && !item.heading" appearance="outline" [ngStyle]="{'width': item.width ? item.width : 'auto'}">
         <mat-label>{{ item.name }}</mat-label>
 
         <ng-container *ngIf="item.isarray; else onlydate">
@@ -103,7 +118,7 @@
                    [formControlName]="item.colname"
                    (blur)="onBlur(item.selection_list, item.colname, index)"
                    [matAutocomplete]="auto">
-            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onMasterSelectionChange($event, item.colname, item.master)">
+            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onMasterSelectionChange($event, item.colname, item.master, item.order_master)">
               <mat-option *ngFor="let option of (filteredOptions[item.colname] | async)" [value]="option">
                 {{ option }}
               </mat-option>

@@ -4,9 +4,17 @@
 
 <mat-tab-group (selectedTabChange)="onTabChange($event)">
 
-  <mat-tab label="PPIC WO">
 
-    <div *ngIf="activeTabIndex === 0" class="cards_container">
+  <mat-tab label="All RM/PM">
+    <div *ngIf="activeTabIndex === 0">
+      <app-report type="ppic_all_rm" [displayedColumns]="appservice.ppic_wo_ds" [staticDS]="ppic_all_rm" [isStatic]="true"></app-report>
+      <app-report type="ppic_all_pm" [displayedColumns]="appservice.ppic_wo_ds" [staticDS]="ppic_all_pm" [isStatic]="true"></app-report>
+    </div>
+  </mat-tab>
+
+  <mat-tab label="Work Order/Brand Name wise RM/PM">
+
+    <div *ngIf="activeTabIndex === 1" class="cards_container">
       <mat-form-field class="search">
         <mat-label>Filter</mat-label>
         <input matInput (keyup)="debounceSearch($event)" placeholder="Type to Filter" #input>
@@ -74,8 +82,6 @@
   <!--<mat-tab label="Under Test RM Stock">
     <app-report *ngIf="activeTabIndex === 3" type="under_test_stock_report" [displayedColumns]="appservice.underTestStock"></app-report>
   </mat-tab>-->
-  <mat-tab label="PPIC WO">
-    <app-report *ngIf="activeTabIndex === 1" type="ppic_wo_ds" [displayedColumns]="appservice.ppic_wo_ds" [staticDS]="ppic_wo_ds" [isStatic]="true"></app-report>
-  </mat-tab>
+
 </mat-tab-group>
 

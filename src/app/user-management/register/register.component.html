@@ -27,13 +27,7 @@
   <mat-form-field *ngIf="!(this.dialogData && this.dialogData.type == 'p')" class="form-group" appearance="outline" color="accent">
     <mat-label>Role</mat-label>
     <mat-select formControlName="role">
-      <mat-option value="Sales">Sales</mat-option>
-      <mat-option value="Purchase">Purchase</mat-option>
-      <mat-option value="Artwork">Artwork</mat-option>
-      <mat-option value="Production">Production</mat-option>
-      <mat-option value="Packaging Material">Packaging Material</mat-option>
-      <mat-option value="PPIC">PPIC</mat-option>
-      <mat-option value="Admin">Admin</mat-option>
+      <mat-option *ngFor="let role of locale.Locale.user.roles | keyvalue" [value]="role.key">{{role.value}}</mat-option>
     </mat-select>
   </mat-form-field>
 

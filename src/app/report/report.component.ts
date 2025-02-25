@@ -2,13 +2,13 @@ import { Component, OnInit, Input } from '@angular/core';
 import { AppService } from '../app.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
-import { Router, ActivatedRoute } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
 import { ConfirmationDlgComponent } from '../common/confirmation-dlg/confirmation-dlg.component';
 import { ReportAddUpdateDlgComponent } from './report-add-update-dlg/report-add-update-dlg.component';
 import { lastValueFrom, Observable } from 'rxjs';
 import { DatePipe } from '@angular/common';
-import { PageEvent } from '@angular/material/paginator';
+import { ExcelService } from '../excel.service';
+import { FormControl, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-report',
@@ -23,13 +23,20 @@ export class ReportComponent implements OnInit {
   @Input() isStatic: boolean = false;
   reportDataSource: MatTableDataSource<any>;
   saving = false;
+  exportHeader: string = "";
   displayAllCol: boolean = false; // reports all columns will be visible
   debounceSearch: Function;
+  reportType = new FormControl<string>("Pending");
+  range = new FormGroup({
+    start: new FormControl<Date | null>(new Date(Date.now() - (86400000 * 30))),
+    end: new FormControl<Date | null>(new Date()),
+  });
   constructor(public appservice: AppService,
     private sb: MatSnackBar,
     private dialog: MatDialog,
-    private datePipe: DatePipe,
-    private route: ActivatedRoute) {
+    private excelService: ExcelService,
+    private datePipe: DatePipe
+    ) {
     this.debounceSearch = this.appservice.debounceSearch(this.applyFilter.bind(this), 300);
     this.reportDataSource = new MatTableDataSource<any>([]);
   }
@@ -41,12 +48,19 @@ export class ReportComponent implements OnInit {
       return;
     }
     this.saving = true;
-    const reportMappings: Record<string, string> = {
-      'order_report': 'orderReport',
-      'art_report': 'artReport',
-      'rm_report': 'rmReport',
-      'pm_report': 'pmReport',
-      'under_test_stock_report': 'underTestStock'
+
+    let reportMappings: Record<string, string> = {
+      'order_report': 'pendingOrders',
+      'art_report': 'pendingArtReport',
+      'rm_report': 'pendingRmReport',
+      'pm_report': 'pendingPmReport'
+    };
+
+    const exportHeaders: Record<string, string> = {
+      'order_report': 'Order Report',
+      'art_report': 'Art Report',
+      'rm_report': 'RM Report',
+      'pm_report': 'PM Report'
     };
 
     const masterMappings: Record<string, string> = {
@@ -56,13 +70,22 @@ export class ReportComponent implements OnInit {
       'pm_stock_master': 'pmStockMaster',
       'brand_master': 'brandStockMaster',
     };
+    if (this.reportType.value == "Completed") {
+      reportMappings = {
+        'order_report': 'completedOrders',
+        'art_report': 'completedArtReport',
+        'rm_report': 'completedRmReport',
+        'pm_report': 'completedPmReport'
+      };
+    }
+    this.exportHeader = exportHeaders[this.type];
+
     let getall: Observable<any>;
     if (reportMappings[this.type]) {
-      getall = this.appservice.GetAllReports(reportMappings[this.type]);
-      //this.displayAllCol = this.type === 'under_test_stock_report'; // removed previous wrong code of ppic
+      let range = { start: this.range.value.start?.getTime(), end: this.range.value.end?.getTime() }
+      getall = this.appservice.GetAllFilterReports(reportMappings[this.type], true, range);
     } else if (masterMappings[this.type]) {
       getall = this.appservice.GetAllLinkingMaster(masterMappings[this.type]);
-      //this.displayAllCol = true;
     } else {
       throw new Error('Invalid report type');
     }
@@ -124,7 +147,7 @@ export class ReportComponent implements OnInit {
       width: '90%', height: height, data: { ds: this.displayedColumns, type: this.type }, autoFocus: false
     }).afterClosed().subscribe(res => {
       if (res) {
-        this.reportDataSource.data.push(res);
+        this.reportDataSource.data.unshift(res);
         this.reportDataSource.data = this.reportDataSource.data.slice();
       }
     });
@@ -245,5 +268,17 @@ export class ReportComponent implements OnInit {
     const diffInMs: any = today - targetDate;
     const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
     return diffInDays;
+  }
+
+  reportTypeChanged(ev: any) {
+    this.reportType.setValue(ev.value);
+    this.ngOnInit();
+  }
+
+  applyDate() {
+    this.ngOnInit();
+  }
+  exportToExcel(): void {
+    this.excelService.generateExcel("multi", this.displayedColumns, this.reportDataSource.data, this.exportHeader, this.type);
   }
 }

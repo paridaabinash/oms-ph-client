@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { LocaleService } from '../../common/locale/locale.service';
 
 @Component({
   selector: 'app-register',
@@ -16,6 +17,7 @@ export class RegisterComponent implements OnInit {
 
   constructor(private appservice: AppService,
     private router: Router,
+    public locale: LocaleService,
     private fb: FormBuilder,
     private sb: MatSnackBar,
     @Inject(MAT_DIALOG_DATA) public dialogData: any,

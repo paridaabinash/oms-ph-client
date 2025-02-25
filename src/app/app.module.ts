@@ -48,6 +48,7 @@ import { LinkingMasterComponent } from './linking-master/linking-master.componen
 import { PpicReportComponent } from './ppic-report/ppic-report.component';
 import { BomComponent } from './ppic-report/bom/bom.component';
 import { BomDlgComponent } from './ppic-report/bom/bom-dlg/bom-dlg.component';
+import { ExcelService } from './excel.service';
 
 export const MY_FORMATS = {
   parse: {
@@ -117,7 +118,8 @@ export const MY_FORMATS = {
   providers: [
     { provide: MAT_DATE_LOCALE, useValue: 'en-GB' }, // Sets locale
     { provide: MAT_DATE_FORMATS, useValue: MY_FORMATS }, // Custom formats
-    { provide: LOCALE_ID, useValue: localStorage.getItem("LOCALE_ID") || "en-US" }
+    { provide: LOCALE_ID, useValue: localStorage.getItem("LOCALE_ID") || "en-US" },
+    ExcelService
   ],
   bootstrap: [AppComponent]
 })

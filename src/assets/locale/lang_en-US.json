@@ -21,13 +21,15 @@
   },
   "user": {
     "roles": {
-      "sales": "Sales",
-      "purchase": "Purchase",
-      "artwork": "Artwork",
-      "production": "Production",
-      "packaging_material": "Packaging Material",
-      "ppic": "PPIC",
-      "admin": "Admin"
+      "Sales": "Sales",
+      "Purchase": "Purchase",
+      "Artwork": "Artwork",
+      "Store": "Store",
+      "Production": "Production",
+      "Packaging Material": "Packaging Material",
+      "PPIC": "PPIC",
+      "Dispatch": "Dispatch",
+      "Admin": "Admin"
     },
     "success": {
       "password_changed": "Password Changed Successfully",

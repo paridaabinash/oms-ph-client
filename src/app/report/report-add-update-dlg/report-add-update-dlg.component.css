@@ -65,3 +65,25 @@ table td {
 .mat-header-cell, .mat-cell {
   white-space: nowrap;
 }
+
+.inner-heading {
+  background: var(--primary-lighter);
+  padding-left: 15px;
+  margin-bottom: 5px;
+  font-size: 18px;
+  font-weight: bold;
+  height: 40px;
+  align-content: center;
+  cursor: pointer;
+}
+
+.inner-icon {
+  vertical-align: middle;
+  float: right;
+  padding-right: 10px;
+}
+
+.icon-btn {
+  vertical-align: middle;
+  float: right;
+}
