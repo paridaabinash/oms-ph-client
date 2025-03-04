@@ -1,17 +1,10 @@
 <mat-toolbar class="toolbar">
-  <mat-progress-bar role="progressbar" aria-label="Loading progress" value="100" color="accent" class="progress-main" mode="determinate" *ngIf="!saving"></mat-progress-bar>
+  <mat-progress-bar role="progressbar" aria-label="Loading progress" value="100" color="accent" class="progress-main" mode="determinate" ></mat-progress-bar>
   <img width="140" height="35" src="/assets/logo.png" alt="Logo">
 </mat-toolbar>
 
-
 <div *ngIf="saving" class="loading-shade">
-  <div class="pill">
-    <div class="medicine">
-      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-    </div>
-    <div class="side"></div>
-    <div class="side"></div>
-  </div>
+  <mat-spinner color="accent"></mat-spinner>
 </div>
 
 <img src="../../assets/welcome-img.png" class="bg-img" alt="Welcome" />

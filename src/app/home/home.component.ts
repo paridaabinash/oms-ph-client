@@ -18,7 +18,7 @@ export class HomeComponent implements OnInit {
   isMobile = false;
   isCollapsed = true;
   isSidenavLoaded: boolean = false;
-  selectedMenu = 'dashboard';
+  selectedMenu = 'order_report';
   view_access = {};
 
   constructor(private observer: BreakpointObserver,

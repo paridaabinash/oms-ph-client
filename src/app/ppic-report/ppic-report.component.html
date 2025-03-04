@@ -1,87 +1,23 @@
-<div *ngIf="saving || appservice.saving" class="content">
+<div *ngIf="saving || appservice.saving" class="loading-shade">
   <mat-spinner color="accent"></mat-spinner>
 </div>
 
 <mat-tab-group (selectedTabChange)="onTabChange($event)">
 
-
-  <mat-tab label="All RM/PM">
+  <mat-tab label="Work Order wise RM/PM PPIC">
     <div *ngIf="activeTabIndex === 0">
-      <app-report type="ppic_all_rm" [displayedColumns]="appservice.ppic_wo_ds" [staticDS]="ppic_all_rm" [isStatic]="true"></app-report>
-      <app-report type="ppic_all_pm" [displayedColumns]="appservice.ppic_wo_ds" [staticDS]="ppic_all_pm" [isStatic]="true"></app-report>
+      <app-report type="ppic_wo" [displayedColumns]="appservice.ppic_wo_ds" [staticDS]="ppic_wo_ds" [isStatic]="true"></app-report>
     </div>
   </mat-tab>
 
-  <mat-tab label="Work Order/Brand Name wise RM/PM">
-
-    <div *ngIf="activeTabIndex === 1" class="cards_container">
-      <mat-form-field class="search">
-        <mat-label>Filter</mat-label>
-        <input matInput (keyup)="debounceSearch($event)" placeholder="Type to Filter" #input>
-        <mat-icon matSuffix>search</mat-icon>
-      </mat-form-field>
-
-      <div *ngFor="let row of ppic_wo_ds" class="single_card">
-        <div class="head_container">
-          <div class="separated_text">
-            <div>Work Order No.: </div>
-            <div>{{row.wo_number}}</div>
-          </div>
-        </div>
-        <div class="table_container">
-          <table *ngIf="!saving" mat-table [dataSource]="row.table" class="mat-elevation-z8 mat-table">
-            <ng-container matColumnDef="item_name">
-              <th mat-header-cell *matHeaderCellDef class="cell"> RM/PM Name </th>
-              <td mat-cell *matCellDef="let row" class="cell"> {{row.item_name}} </td>
-            </ng-container>
-
-            <ng-container matColumnDef="calc_offset">
-              <th mat-header-cell *matHeaderCellDef class="cell"> Qty For 1 Lakh </th>
-              <td mat-cell *matCellDef="let row" class="cell"> {{row.calc_offset}} </td>
-            </ng-container>
-
-            <ng-container matColumnDef="required_stock">
-              <th mat-header-cell *matHeaderCellDef class="cell"> Required Stock </th>
-              <td mat-cell *matCellDef="let row" class="cell"> {{row.required_stock}} </td>
-            </ng-container>
-
-            <ng-container matColumnDef="rate">
-              <th mat-header-cell *matHeaderCellDef class="cell"> Rate of RM/PM </th>
-              <td mat-cell *matCellDef="let row" class="cell"> {{row.rate}} </td>
-            </ng-container>
-
-            <ng-container matColumnDef="present_stock">
-              <th mat-header-cell *matHeaderCellDef class="cell"> Present Stock </th>
-              <td mat-cell *matCellDef="let row" class="cell"> {{row.present_stock}} </td>
-            </ng-container>
-
-            <ng-container matColumnDef="transit">
-              <th mat-header-cell *matHeaderCellDef class="cell"> In Transit </th>
-              <td mat-cell *matCellDef="let row" class="cell"> {{row.transit}} </td>
-            </ng-container>
-
-            <ng-container matColumnDef="shortage">
-              <th mat-header-cell *matHeaderCellDef class="cell"> Shortage </th>
-              <td mat-cell *matCellDef="let row" class="cell"> {{row.shortage}} </td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="['item_name', 'calc_offset', 'required_stock', 'rate', 'present_stock', 'transit', 'shortage']"></tr>
-            <tr mat-row *matRowDef="let row; columns: ['item_name', 'calc_offset', 'required_stock', 'rate', 'present_stock', 'transit', 'shortage'];"></tr>
-
-          </table>
-        </div>
-      </div>
+  <mat-tab label="All RM/PM PPIC">
+    <div *ngIf="activeTabIndex === 1" style="display: flex; flex-direction: column;">
+      <app-report style="flex: 1" type="ppic_all_rm" [displayedColumns]="appservice.ppic_all_rm" [staticDS]="ppic_all_rm" [isStatic]="true"></app-report>
+      <app-report style="flex: 1" type="ppic_all_pm" [displayedColumns]="appservice.ppic_all_pm" [staticDS]="ppic_all_pm" [isStatic]="true"></app-report>
     </div>
   </mat-tab>
-  <!--<mat-tab label="BOM">
-    <app-bom *ngIf="activeTabIndex === 1" type="bom"></app-bom>
-  </mat-tab>
-  <mat-tab label="Present/ PM Stock">
-    <app-bom *ngIf="activeTabIndex === 2" type="present_stock"></app-bom>
-  </mat-tab>-->
-  <!--<mat-tab label="Under Test RM Stock">
-    <app-report *ngIf="activeTabIndex === 3" type="under_test_stock_report" [displayedColumns]="appservice.underTestStock"></app-report>
-  </mat-tab>-->
+
+
 
 </mat-tab-group>
 

@@ -49,3 +49,14 @@ th:last-child, td:last-child {
   margin-top: 10px;
   margin-bottom: 0;
 }
+
+
+@media screen and (max-width: 600px) {
+  .table-header {
+    flex-direction: column;
+  }
+
+  .search {
+    width: 100%;
+  }
+}

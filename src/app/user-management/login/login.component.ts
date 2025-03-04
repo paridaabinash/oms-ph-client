@@ -3,6 +3,7 @@ import { AppService } from '../../app.service';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { lastValueFrom, Observable } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -22,32 +23,30 @@ export class LoginComponent {
     });
   }
 
-  login() {
+  async login() {
     this.saving = true;
     let form_val = this.form.value;
-    this.appservice.login({ username: form_val.userid, password: form_val.password })
-      .subscribe({
-        next: (response) => {
-          this.sb.open("Login Successful", "", {
-            duration: 2000,
-            horizontalPosition: 'center', // You can customize this
-            verticalPosition: 'bottom'   // You can customize this
-          });
-          this.saving = false;
-          this.appservice.setToken(response.token); // Store the token
-          this.router.navigate(['home']); // Redirect after login
-          delete response.user._rev;
-          delete response.user.password;
-          sessionStorage.setItem('user', JSON.stringify(response.user));
-        },
-        error: (error) => {
-          this.sb.open("Login Failed", "", {
-            duration: 2000,
-            horizontalPosition: 'center', // You can customize this
-            verticalPosition: 'bottom'   // You can customize this
-          });
-          this.saving = false;
-        }
+    const response = await lastValueFrom(this.appservice.login({ username: form_val.userid, password: form_val.password }))
+    if (response) {
+      this.sb.open("Login Successful", "", {
+        duration: 2000,
+        horizontalPosition: 'center', // You can customize this
+        verticalPosition: 'bottom'   // You can customize this
       });
+      
+      this.appservice.setToken(response.token); // Store the token
+      this.router.navigate(['home']); // Redirect after login
+      delete response.user._rev;
+      delete response.user.password;
+      sessionStorage.setItem('user', JSON.stringify(response.user));
+    }
+    else {
+      this.sb.open(response.message, "", {
+        duration: 2000,
+        horizontalPosition: 'center', // You can customize this
+        verticalPosition: 'bottom'   // You can customize this
+      });
+    }
+    this.saving = false;
   }
 }

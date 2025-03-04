@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, SimpleChanges } from '@angular/core';
 import { AppService } from '../app.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
@@ -24,6 +24,7 @@ export class ReportComponent implements OnInit {
   reportDataSource: MatTableDataSource<any>;
   saving = false;
   exportHeader: string = "";
+  allFilters: string = "";
   displayAllCol: boolean = false; // reports all columns will be visible
   debounceSearch: Function;
   reportType = new FormControl<string>("Pending");
@@ -31,6 +32,14 @@ export class ReportComponent implements OnInit {
     start: new FormControl<Date | null>(new Date(Date.now() - (86400000 * 30))),
     end: new FormControl<Date | null>(new Date()),
   });
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes["staticDS"]) {
+      this.reportDataSource.data = changes["staticDS"].currentValue;
+      this.exportHeader = this.setExportHeaders()
+    }
+      
+  }
   constructor(public appservice: AppService,
     private sb: MatSnackBar,
     private dialog: MatDialog,
@@ -41,10 +50,24 @@ export class ReportComponent implements OnInit {
     this.reportDataSource = new MatTableDataSource<any>([]);
   }
 
+  setExportHeaders() {
+    const exportHeaders: Record<string, string> = {
+      'order_report': 'Order Report',
+      'art_report': 'Art Report',
+      'rm_report': 'RM Report',
+      'pm_report': 'PM Report',
+      'ppic_wo': 'Work Order wise RM/PM PPIC',
+      'ppic_all_rm': 'All RM/PM PPIC',
+      'ppic_all_pm': 'All RM/PM PPIC'
+    };
+    return exportHeaders[this.type];
+  }
+
   async ngOnInit() {
 
     if (this.isStatic) {
       this.reportDataSource.data = this.staticDS;
+      this.exportHeader = this.reportDataSource.data.length > 0 ? this.setExportHeaders() : "";
       return;
     }
     this.saving = true;
@@ -56,12 +79,7 @@ export class ReportComponent implements OnInit {
       'pm_report': 'pendingPmReport'
     };
 
-    const exportHeaders: Record<string, string> = {
-      'order_report': 'Order Report',
-      'art_report': 'Art Report',
-      'rm_report': 'RM Report',
-      'pm_report': 'PM Report'
-    };
+    
 
     const masterMappings: Record<string, string> = {
       'composition_master': 'compositionMaster',
@@ -78,7 +96,7 @@ export class ReportComponent implements OnInit {
         'pm_report': 'completedPmReport'
       };
     }
-    this.exportHeader = exportHeaders[this.type];
+    this.allFilters = this.setExportHeaders();
 
     let getall: Observable<any>;
     if (reportMappings[this.type]) {
@@ -94,35 +112,9 @@ export class ReportComponent implements OnInit {
       const response = await lastValueFrom(getall);
       if (response) {
         this.reportDataSource.data = (response as any[]).map(res => res.doc);
-        //  if (this.type == 'under_test_stock_report') { // removed previous wrong code of ppic
-        //    const under_test_response = await lastValueFrom(this.appservice.GetAllFilterReports('rmUnderTestFilter'));
-        //    if (under_test_response) {
-        //      let temp_ds = [];
-        //      for (let ut of under_test_response) {
-        //        ut = ut.doc;
-        //        let match_rm = this.reportDataSource.data.findIndex(rm => rm._id.slice(3) == ut._id)
-        //        if (match_rm != -1) {
-        //          this.reportDataSource.data[match_rm].qty_recieved = ut.qty_recieved;
-        //        } else {
-        //          temp_ds.push({
-        //            _id: "ut_" + ut._id,
-        //            rm_item_name: ut.rm_item_name,
-        //            qty_recieved: ut.qty_recieved,
-        //            rm_batch: '',
-        //            qc_approve_status: '',
-        //            type: 'under_test_stock_report'
-        //          })
-        //        }
-        //      }
-        //      if (temp_ds.length > 0) {
-        //        const bulk_add_response = await lastValueFrom(this.appservice.BulkAddDocuments(temp_ds));
-        //        if (bulk_add_response) {
-        //          this.reportDataSource.data.concat(bulk_add_response);
-        //        }
-        //      }
-        //    }
-        //  }
       }
+      this.exportHeader = this.reportDataSource.data.length > 0 ? this.setExportHeaders() : "";
+
       this.saving = false;
     } catch (error) {
       this.sb.open("Could not fetch All Reports", "", {
@@ -166,7 +158,10 @@ export class ReportComponent implements OnInit {
       width: '90%', height: height, data: { row, ds: this.displayedColumns, type: this.type }, autoFocus: false
     }).afterClosed().subscribe(res => {
       if (res) {
-        this.reportDataSource.data.splice(index, 1, res);
+        if ((this.type == "order_report" && res.order_status == "Completed") || ((this.type == "rm_master" || this.type == "pm_stock_master") && res.pending == 0))
+          this.reportDataSource.data.splice(index, 1);
+        else
+          this.reportDataSource.data.splice(index, 1, res);
         this.reportDataSource.data = this.reportDataSource.data.slice();
       }
     });
@@ -220,6 +215,24 @@ export class ReportComponent implements OnInit {
                   await lastValueFrom(this.appservice.SetOrderMaster(response))
                 }
               }
+              
+            }
+            if (this.type == 'rm_report' || this.type == 'pm_report') { // delete any qty_recieved if deleting a row 
+
+              let cur_qty_recieved = parseFloat(row.qty_recieved);
+              if (isNaN(cur_qty_recieved)) cur_qty_recieved = 0;
+
+              if (cur_qty_recieved > 0) {
+                let item_name = this.type == 'rm_report' ? row.rm_item_name : row.pm_item_name;
+                let res = await lastValueFrom(this.appservice.GetReportById(item_name));
+                if (res) {
+                  let present_stock = parseFloat(res.present_stock);
+                  if (isNaN(present_stock)) present_stock = 0;
+                  present_stock -= cur_qty_recieved;
+                  res.present_stock = present_stock;
+                  res = await lastValueFrom(this.appservice.UpdateReport(res));
+                }
+              }
             }
           }
 
@@ -234,7 +247,9 @@ export class ReportComponent implements OnInit {
     });
   }
   getDisplayedColumns() {
-    if (this.isStatic)
+    let isHandset = false;
+    this.appservice.isHandset$.subscribe((data) => isHandset = data);
+    if (this.isStatic || isHandset)
       return this.displayedColumns.map(col => col.colname);
     else
       return this.displayAllCol ?

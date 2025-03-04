@@ -84,6 +84,9 @@ table td {
 }
 
 .icon-btn {
-  vertical-align: middle;
+  background-color: var(--table-grey);
+  color: var(--font-grey);
   float: right;
+  border-radius: 0;
+  height: 50px;
 }

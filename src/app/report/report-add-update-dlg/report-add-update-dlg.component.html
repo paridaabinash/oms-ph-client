@@ -4,10 +4,11 @@
     {{dlgHeading}}
     <span style="font-size: 14px; padding-left: 10px">{{'Created at: ' + (dialogData.row ? (appservice.getDateTimeString(dialogData.row.created_at) ?? "") : appservice.getDateTimeString())}}</span>
   </span>
-  <button *ngIf="exportHeader" mat-icon-button (click)="exportToExcel()" matTooltip="Excel Export" class="icon-btn"><mat-icon>file_download</mat-icon></button>
+  <button *ngIf="exportHeader" mat-icon-button (click)="exportToExcel()" matTooltip="Excel Export" class="icon-btn"><mat-icon>save_alt</mat-icon></button>
+
 </h3>
 <form [formGroup]="form" class="dialog-body report-form" #form_elem>
-  <div *ngFor="let item of dialogData.ds; let index = index" [ngStyle]="{'width': item.width ? item.width : 'auto'}" [hidden]="clicked_heading.includes(item.right)">
+  <div *ngFor="let item of columnDS; let index = index" [ngStyle]="{'width': item.width ? item.width : 'auto'}" [hidden]="clicked_heading.includes(item.right)">
 
 
     <ng-container *ngIf="item.heading;">

@@ -1,6 +1,6 @@
-import { Component, OnInit, Inject, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, Inject, ElementRef, ViewChild, ChangeDetectorRef, NgZone, OnDestroy } from '@angular/core';
 import { AppService } from '../../app.service';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Observable, lastValueFrom, Subscription, merge } from 'rxjs';
@@ -16,13 +16,14 @@ import { ExcelService } from '../../excel.service';
   styleUrl: './report-add-update-dlg.component.css',
   providers: [DatePipe]
 })
-export class ReportAddUpdateDlgComponent implements OnInit {
+export class ReportAddUpdateDlgComponent implements OnInit, OnDestroy {
   form!: FormGroup;
   saving = false;
   dlgHeading: string = '';
   filteredOptions: { [key: string]: Observable<any[]> } = {};
   orderMaster: any = {};
   productMasterDS: any[] = [];
+  columnDS: any[] = [];
   controlArrayValue: any = {};
   @ViewChild('form_elem') form_elem!: ElementRef;
   private subscription: Subscription = new Subscription();
@@ -36,23 +37,30 @@ export class ReportAddUpdateDlgComponent implements OnInit {
     public locale: LocaleService,
     private dialog: MatDialog,
     private excelService: ExcelService,
+    private cdr: ChangeDetectorRef,
+    private zone: NgZone,
     @Inject(MAT_DIALOG_DATA) public dialogData: any,
     public dialogref: MatDialogRef<ReportAddUpdateDlgComponent>
   ) {
     this.form = new FormGroup({});
-    (this.dialogData.ds as any[]).forEach(item => {
-      this.form.addControl(item.colname, new FormControl(''));
+    this.columnDS = JSON.parse(JSON.stringify(this.dialogData.ds));
+
+    this.columnDS.forEach(item => {
+      if (!item.heading)
+        this.form.addControl(item.colname, new FormControl(''));
     });
   }
 
   async ngOnInit() {
+
+
     const exportHeaders: Record<string, string> = {
       'order_report': 'Order Report',
       'art_report': 'Art Report',
       'rm_report': 'RM Report',
       'pm_report': 'PM Report'
     };
-    this.exportHeader = exportHeaders[this.dialogData.type];
+    this.exportHeader = this.dialogData.row ? exportHeaders[this.dialogData.type] : "";
     if (this.appservice.user.role != 'Admin') {
       Object.keys(this.locale.Locale.user.roles).forEach(role => {
         if (this.appservice.user.role != role) this.clicked_heading.push(role)
@@ -83,9 +91,9 @@ export class ReportAddUpdateDlgComponent implements OnInit {
       if (response) {
         this.orderMaster = response;
         for (let res in response) { // add all selection lists to ds
-          let selection_col_ind = (this.dialogData.ds as any[]).findIndex(col => col.colname == res);
+          let selection_col_ind = this.columnDS.findIndex(col => col.colname == res);
           if (selection_col_ind != -1) {
-            this.dialogData.ds[selection_col_ind].selection_list = response[res];
+            this.columnDS[selection_col_ind].selection_list = response[res];
           }
         }
       }
@@ -94,7 +102,7 @@ export class ReportAddUpdateDlgComponent implements OnInit {
           let res = await lastValueFrom(this.appservice.GetImagesById('img-' + this.dialogData.row._id))
           if (res) {
             this.imagelist = res;
-            let imageColumnList = (this.dialogData.ds as any[]).filter(col => col.image);
+            let imageColumnList = this.columnDS.filter(col => col.image);
             for (let img of this.imagelist) {
               for (let col of imageColumnList) {
                 if (img.name.includes(col.colname)) {
@@ -111,11 +119,11 @@ export class ReportAddUpdateDlgComponent implements OnInit {
       }
       if (this.dialogData.type == 'brand_master') {
         if (this.dialogData.row) {
-          this.appservice.brandStockMaster[1].ds = this.dialogData.row['rm_item_name_list'];
-          this.appservice.brandStockMaster[2].ds = this.dialogData.row['pm_item_name_list'];
+          this.columnDS[1].ds = this.dialogData.row['rm_item_name_list']; //appservice.brandStockMaster
+          this.columnDS[2].ds = this.dialogData.row['pm_item_name_list'];
         } else {
-          this.appservice.brandStockMaster[1].ds = [];
-          this.appservice.brandStockMaster[2].ds = [];
+          this.columnDS[1].ds = [];
+          this.columnDS[2].ds = [];
 
         }
 
@@ -123,7 +131,7 @@ export class ReportAddUpdateDlgComponent implements OnInit {
       if (this.dialogData.type == 'rm_report' || this.dialogData.type == 'pm_report') {
         const ord_res: any[] = await lastValueFrom(this.appservice.GetAllFilterReports("pendingOrders", false, null));
         if (ord_res) {
-          this.dialogData.ds[1].selection_list = ord_res.map(res => res.id); // "wo_number"
+          this.columnDS[0].selection_list = ord_res.map(res => res.id); // "wo_number"
         }
       }
 
@@ -151,17 +159,22 @@ export class ReportAddUpdateDlgComponent implements OnInit {
 
   setupAutocompleteFilters() {
     let form = this.form;
-    (this.dialogData.ds as any[]).forEach(item => {
+    this.columnDS.forEach(item => {
       if (!item.heading) { //skipping heading rows in order_report
         const controlval = this.dialogData.row ? this.dialogData.row[item.colname] : (item.isarray ? [] : ("default" in item ? item.default : ''));
 
         (form.get(item.colname) as FormControl).setValue(controlval);
 
         const fcontrol = form.get(item.colname) as FormControl;
+        if (item.required)
+          fcontrol.addValidators(Validators.required);
         if (this.appservice.user.role != 'Admin' && item.right && item.right != this.appservice.user.role)
           fcontrol.disable();
         if (item.autofill && this.dialogData.type.includes('_report'))
           fcontrol.disable();
+        if (item.disable_after && this.dialogData.row) // disable some intput after creation
+          fcontrol.disable();
+
         if (item.autocomplete) {
           this.filteredOptions[item.colname] =
             fcontrol.valueChanges.pipe(
@@ -214,7 +227,21 @@ export class ReportAddUpdateDlgComponent implements OnInit {
 
     let getMaster = order_master ? this.appservice.GetReportById(selectedValue) : this.appservice.GetLinkingMasterById(selectedValue)
     try {
-      let res = await lastValueFrom(getMaster)
+      let res = await lastValueFrom(getMaster);
+      if ((this.dialogData.type == "rm_report" || this.dialogData.type == "pm_report") && controlName == "wo_number") {
+        let brand_det: any = await lastValueFrom(this.appservice.GetReportById(res.brand_name));
+        if (this.dialogData.type == "rm_report") {
+          this.columnDS[2].selection_list = (brand_det.rm_item_name_list as any[]).map(rm => rm.rm_item_name); // "rm_item_name"
+        }
+        else {
+          this.columnDS[2].selection_list = (brand_det.pm_item_name_list as any[]).map(pm => pm.pm_item_name);; // "pm_item_name"
+        }
+
+        this.zone.run(() => {
+          this.columnDS = JSON.parse(JSON.stringify(this.columnDS));
+          this.cdr.detectChanges();
+        });
+      }
       if (res) {
         for (let field in res) {
           let contrl = (form.get(field) as FormControl);
@@ -230,9 +257,6 @@ export class ReportAddUpdateDlgComponent implements OnInit {
           }
           if (contrl)
             contrl.setValue(res[field]);
-          if (field == 'rm_item_name') {
-            form.addControl(field, new FormControl(res[field]))
-          }
         }
         //if (controlName == "composition_code") {
         //  try { //only fetch 3/4 packaging list that are linked with composition master
@@ -271,6 +295,7 @@ export class ReportAddUpdateDlgComponent implements OnInit {
     if (this.dialogData.row) {
       form_val._id = this.dialogData.row._id;
       form_val._rev = this.dialogData.row._rev;
+      form_val.created_at = this.dialogData.row.created_at;
     } else {
       form_val.created_at = Date.now();
     }
@@ -322,32 +347,60 @@ export class ReportAddUpdateDlgComponent implements OnInit {
             });
           }
         }
-        this.appservice.brandStockMaster[1].ds = [];
-        this.appservice.brandStockMaster[2].ds = [];
+        if (this.dialogData.type == 'brand_master') {
+          this.columnDS[1].ds = []; //brandStockMaster
+          this.columnDS[2].ds = [];
+        }
       }
-      if (type == 'Order' && form_val.order_type.toLowerCase() == 'new') {
-        let artwork: any = {};
-        for (let obj of this.appservice.artDS) {
-          if (form_val[obj.colname])
-            artwork[obj.colname] = form_val[obj.colname];
-          else {
-            artwork[obj.colname] = '';
+      else if (type == 'Order') {
+        if (form_val.order_type.toLowerCase() == 'new') {
+          let artwork: any = {};
+          for (let obj of this.appservice.artDS) {
+            if (form_val[obj.colname])
+              artwork[obj.colname] = form_val[obj.colname];
+            else {
+              artwork[obj.colname] = '';
+            }
+          }
+          artwork.type = 'art_report';
+          artwork.artwork_status = 'Incomplete';
+
+          try {
+            await lastValueFrom(this.dialogData.row ? this.appservice.UpdateReport(artwork) : this.appservice.CreateReport(artwork))
+
+          }
+          catch (error) {
+            this.sb.open("Could not create Artwork Report", "", {
+              duration: 1500
+            });
           }
         }
-        artwork.type = 'art_report';
-        artwork.artwork_status = 'Incomplete';
-
-        try {
-          await lastValueFrom(this.dialogData.row ? this.appservice.UpdateReport(artwork) : this.appservice.CreateReport(artwork))
-
-        }
-        catch (error) {
-          this.sb.open("Could not create Artwork Report", "", {
-            duration: 1500
-          });
+        if (form_val.order_status == "Completed") {
+          let res = await lastValueFrom(this.appservice.GetReportById(form_val.brand_name));
+          let total_order_qty = form_val.qty_in_tabs, rm_list: any = {}, pm_list: any = {};
+          if (res.rm_item_name_list) {
+            (res.rm_item_name_list as any[]).forEach(rm => rm_list[rm.rm_item_name] = { completed_qty: (total_order_qty * rm.calc_offset) / 100000 });
+          }
+          if (res.pm_item_name_list) {
+            (res.pm_item_name_list as any[]).forEach(pm => pm_list[pm.pm_item_name] = { completed_qty: (total_order_qty * pm.calc_offset) / 100000 });
+          }
+          res = await lastValueFrom(this.appservice.GetLinkingMasterByIds("rmAndpmList", [...(Object.keys(rm_list)), ...(Object.keys(pm_list))], true));
+          let all_rm_pm: any = [];
+          if (res) {
+            all_rm_pm = (res as any[]).map(item => {
+              if (item.doc.type == "pm_stock_master")
+                item.doc.present_stock = item.doc.present_stock - pm_list[item.doc.pm_item_name].completed_qty;
+              else
+                item.doc.present_stock = item.doc.present_stock - rm_list[item.doc.rm_item_name].completed_qty;
+              return item.doc;
+            });
+          }
+          if (all_rm_pm.length > 0) {
+            res = await lastValueFrom(this.appservice.BulkAddDocuments(all_rm_pm));
+          }
         }
       }
-      if (type == 'Artwork') {
+      else if (type == 'Artwork') {
         const payload = {
           _id: "img-" + response._id,
           images: this.images,
@@ -365,19 +418,47 @@ export class ReportAddUpdateDlgComponent implements OnInit {
           });
         }
       }
-      if (type == 'RM' && form_val.po_quantity == form_val.qty_recieved && form_val._id) {
+      else if (type == 'RM' || type == 'PM') { // present stock update
 
-        const id_response = await lastValueFrom(this.appservice.GetReportById("ut_" + form_val._id));
-        if (id_response) {
-          this.appservice.DeleteReport(id_response);
+        if (form_val._id) { // updating qty_recvd 
+          let prev_qty_recieved = parseFloat(this.dialogData.row.qty_recieved);
+          let cur_qty_recieved = parseFloat(form_val.qty_recieved);
+          if (isNaN(prev_qty_recieved)) prev_qty_recieved = 0;
+          if (isNaN(cur_qty_recieved)) cur_qty_recieved = 0;
+
+          let item_name = type == 'RM' ? form_val.rm_item_name : form_val.pm_item_name;
+          let res = await lastValueFrom(this.appservice.GetReportById(item_name));
+          if (res) {
+            let present_stock = parseFloat(res.present_stock);
+            if (isNaN(present_stock)) present_stock = 0;
+            present_stock += (cur_qty_recieved - prev_qty_recieved);
+            res.present_stock = present_stock;
+            res = await lastValueFrom(this.appservice.UpdateReport(res));
+          }
+
+        } else {  // recv_qty during addition
+          let cur_qty_recieved = parseFloat(form_val.qty_recieved);
+          if (isNaN(cur_qty_recieved)) cur_qty_recieved = 0;
+
+          let item_name = type == 'RM' ? form_val.rm_item_name : form_val.pm_item_name;
+          let res = await lastValueFrom(this.appservice.GetReportById(item_name));
+          if (res) {
+            let present_stock = parseFloat(res.present_stock);
+            if (isNaN(present_stock)) present_stock = 0;
+            present_stock += cur_qty_recieved;
+            res.present_stock = present_stock;
+            res = await lastValueFrom(this.appservice.UpdateReport(res));
+          }
         }
 
+
       }
-      this.sb.open(type + (this.dialogData.row ? " Updated" : " Created"), "", {
+     
+      this.sb.open(type + (this.dialogData.row ? " Updated" : " Created") + " Successfully", "Ok", {
         duration: 2000
       });
-      this.dialogref.close(response);
       this.saving = false;
+      this.dialogref.close(response);
     }
     catch (error) {
       this.sb.open("Could not update " + type, "", {
@@ -499,12 +580,6 @@ export class ReportAddUpdateDlgComponent implements OnInit {
     const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
     return diffInDays;
   }
-  ngOnDestroy() {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
-  }
-
 
 
 
@@ -578,6 +653,12 @@ export class ReportAddUpdateDlgComponent implements OnInit {
   }
 
   exportToExcel(): void {
-    this.excelService.generateExcel("single", this.dialogData.ds, this.dialogData.row, this.exportHeader, this.dialogData.type + "_" + this.dialogData.row._id);
+    this.excelService.generateExcel("single", this.columnDS, this.dialogData.row, this.exportHeader, this.dialogData.type + "_" + this.dialogData.row._id);
+  }
+
+  ngOnDestroy() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
   }
 }
