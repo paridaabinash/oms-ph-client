@@ -28,11 +28,15 @@ export class HomeComponent implements OnInit {
     private cdr: ChangeDetectorRef) { }
 
   ngOnInit() {
-    let user = sessionStorage.getItem('user') ?? null;
+
+    let user: any = sessionStorage.getItem('user') ?? null;
     if (user)
       this.appservice.user = JSON.parse(user);
     else {
       this.route.navigate(['']);
+    }
+    if (this.appservice.user.role != 'Admin') {
+      this.selectedMenu = Object.keys(this.appservice.access[this.appservice.user.role])[0];
     }
   }
 
@@ -52,7 +56,7 @@ export class HomeComponent implements OnInit {
     if (this.isMobile) {
       this.sidenav.toggle();
       this.isCollapsed = false; // On mobile, the menu can never be collapsed
-    } 
+    }
   }
   menuClick() {
     if (this.isMobile && this.sidenav.opened)
@@ -71,6 +75,12 @@ export class HomeComponent implements OnInit {
       if (result)
         this.appservice.logout();
     });
+  }
+
+  checkUserAccess(report_type: string) {
+    if (this.appservice.user.role == 'Admin')
+      return true;
+    return this.appservice.access[this.appservice.user.role][report_type]
   }
 }
 

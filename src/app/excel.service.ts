@@ -10,7 +10,7 @@ export class ExcelService {
 
   constructor(private appservice: AppService) { }
 
-  generateExcel(type: string, columns: any[], data: any[], heading: string, fileName: string): void {
+  generateExcel(type: string, columns: any[], data: any, heading: string, fileName: string): void {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Sheet 1');
 
@@ -31,7 +31,7 @@ export class ExcelService {
 
     let multi_header = [];
     if (type == 'multi') {
-      multi_header = columns.filter(col => !col.heading).map(col => col.name);
+      multi_header = columns.filter(col => !col.heading && !col.horizontal_line).map(col => col.name);
     }
     worksheet.mergeCells(1, 1, 2, type == 'single' ? 2 : multi_header.length);
     worksheet.mergeCells(3, 1, 3, type == 'single' ? 2 : multi_header.length);
@@ -52,6 +52,16 @@ export class ExcelService {
       }
       worksheet.columns[0].width = maxLength1 + 2;
       worksheet.columns[1].width = maxLength2 + 2;
+
+      if (data.type == "art_report") {
+        if (data.carton_artwork_innerurl)
+          workbook.addImage({ base64: data.carton_artwork_innerurl, extension: 'jpeg' })
+        if (data.carton_artwork_outerurl)
+          workbook.addImage({ base64: data.carton_artwork_outerurl, extension: 'jpeg' })
+        if (data.tube_sticker_foil_artworkurl)
+          workbook.addImage({ base64: data.tube_sticker_foil_artworkurl, extension: 'jpeg' })
+      }
+
     }
     else {
       let col_len = Array(multi_header.length).fill(0);
@@ -62,12 +72,13 @@ export class ExcelService {
         final_row = [];
         col_ind = 0;
         for (let col = 0; col < columns.length; col++) {
-          if (columns[col].heading)
+          if (columns[col].heading || columns[col].horizontal_line)
             continue;
           let col_name = columns[col].colname;
           let val = row[col_name]?.toString() ?? "";
           final_row.push(val);
 
+          console.log(multi_header[col_ind])
           let c_len = multi_header[col_ind].length, v_len = val.length;
           c_len += (multi_header[col_ind].match(/[A-Z]/g) || []).length;
           v_len += (val.match(/[A-Z]/g) || []).length;

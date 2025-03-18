@@ -46,7 +46,7 @@ export class ReportAddUpdateDlgComponent implements OnInit, OnDestroy {
     this.columnDS = JSON.parse(JSON.stringify(this.dialogData.ds));
 
     this.columnDS.forEach(item => {
-      if (!item.heading)
+      if (!item.heading && !item.horizontal_line)
         this.form.addControl(item.colname, new FormControl(''));
     });
   }
@@ -119,11 +119,11 @@ export class ReportAddUpdateDlgComponent implements OnInit, OnDestroy {
       }
       if (this.dialogData.type == 'brand_master') {
         if (this.dialogData.row) {
-          this.columnDS[1].ds = this.dialogData.row['rm_item_name_list']; //appservice.brandStockMaster
-          this.columnDS[2].ds = this.dialogData.row['pm_item_name_list'];
+          this.columnDS[2].ds = this.dialogData.row['rm_item_name_list']; //appservice.brandStockMaster
+          this.columnDS[3].ds = this.dialogData.row['pm_item_name_list'];
         } else {
-          this.columnDS[1].ds = [];
           this.columnDS[2].ds = [];
+          this.columnDS[3].ds = [];
 
         }
 
@@ -160,14 +160,16 @@ export class ReportAddUpdateDlgComponent implements OnInit, OnDestroy {
   setupAutocompleteFilters() {
     let form = this.form;
     this.columnDS.forEach(item => {
-      if (!item.heading) { //skipping heading rows in order_report
+      if (!item.heading && !item.horizontal_line) { //skipping heading rows in order_report
         const controlval = this.dialogData.row ? this.dialogData.row[item.colname] : (item.isarray ? [] : ("default" in item ? item.default : ''));
 
         (form.get(item.colname) as FormControl).setValue(controlval);
 
         const fcontrol = form.get(item.colname) as FormControl;
-        if (item.required)
+        if (item.required) {
           fcontrol.addValidators(Validators.required);
+          fcontrol.updateValueAndValidity();
+        }
         if (this.appservice.user.role != 'Admin' && item.right && item.right != this.appservice.user.role)
           fcontrol.disable();
         if (item.autofill && this.dialogData.type.includes('_report'))
@@ -208,17 +210,15 @@ export class ReportAddUpdateDlgComponent implements OnInit, OnDestroy {
 
   onBlur(selection_list: string[], form_ctrl: string, ind: any) {
     setTimeout(() => {
-      if (selection_list && !selection_list.includes(this.form.get(form_ctrl)?.value)) {
-        //console.log(this.dialogData.ds[ind], form_ctrl, this.form.get(form_ctrl)?.value, !selection_list.includes(this.form.get(form_ctrl)?.value))
-        this.form.patchValue({ form_ctrl: "" })
-        //console.log(this.form.value, this.form.get(form_ctrl)?.value)
+      if (!this.dialogData.type.includes("_master") && selection_list && !selection_list.includes(this.form.get(form_ctrl)?.value)) {
+        this.form.get(form_ctrl)?.setValue("");
       }
     });
   }
 
   async onMasterSelectionChange(event: any, controlName: string, isMaster: boolean, order_master: boolean) {
 
-    if (!isMaster || this.dialogData.type == 'composition_master' || this.dialogData.type == 'packaging_master' || this.dialogData.type == 'rm_master' || this.dialogData.type == 'pm_stock_master' || this.dialogData.type == 'brand_master_rm' || this.dialogData.type == 'brand_master_pm' || this.dialogData.type == 'brand_master') {
+    if (!isMaster || this.dialogData.type.includes("_master")) { // any master views or master column
       return;
     }
     let selectedValue = event.option.value;
@@ -245,7 +245,7 @@ export class ReportAddUpdateDlgComponent implements OnInit, OnDestroy {
       if (res) {
         for (let field in res) {
           let contrl = (form.get(field) as FormControl);
-          if (field == "packaging_code" && controlName == "composition_code") {
+          if (field == "packaging_code" && controlName == "brand_name") {
             this.filteredOptions[field] =
               contrl.valueChanges.pipe(
                 debounceTime(300),
@@ -348,8 +348,8 @@ export class ReportAddUpdateDlgComponent implements OnInit, OnDestroy {
           }
         }
         if (this.dialogData.type == 'brand_master') {
-          this.columnDS[1].ds = []; //brandStockMaster
-          this.columnDS[2].ds = [];
+          this.columnDS[2].ds = []; //brandStockMaster
+          this.columnDS[3].ds = [];
         }
       }
       else if (type == 'Order') {
@@ -363,7 +363,8 @@ export class ReportAddUpdateDlgComponent implements OnInit, OnDestroy {
             }
           }
           artwork.type = 'art_report';
-          artwork.artwork_status = 'Incomplete';
+          artwork.artwork_status = 'Pending';
+          artwork.created_at = Date.now();
 
           try {
             await lastValueFrom(this.dialogData.row ? this.appservice.UpdateReport(artwork) : this.appservice.CreateReport(artwork))
@@ -389,9 +390,9 @@ export class ReportAddUpdateDlgComponent implements OnInit, OnDestroy {
           if (res) {
             all_rm_pm = (res as any[]).map(item => {
               if (item.doc.type == "pm_stock_master")
-                item.doc.present_stock = item.doc.present_stock - pm_list[item.doc.pm_item_name].completed_qty;
+                item.doc.present_stock = this.appservice.limitDecimals(item.doc.present_stock - pm_list[item.doc.pm_item_name].completed_qty, 4);
               else
-                item.doc.present_stock = item.doc.present_stock - rm_list[item.doc.rm_item_name].completed_qty;
+                item.doc.present_stock = this.appservice.limitDecimals(item.doc.present_stock - rm_list[item.doc.rm_item_name].completed_qty, 4);
               return item.doc;
             });
           }
@@ -453,7 +454,7 @@ export class ReportAddUpdateDlgComponent implements OnInit, OnDestroy {
 
 
       }
-     
+
       this.sb.open(type + (this.dialogData.row ? " Updated" : " Created") + " Successfully", "Ok", {
         duration: 2000
       });
@@ -499,8 +500,9 @@ export class ReportAddUpdateDlgComponent implements OnInit, OnDestroy {
     if (this.dialogData.type == 'order_report') {
       this.subscription = merge(
         form_ctrl['order_qty'].valueChanges,
-        form_ctrl['pack_type'].valueChanges,
+        form_ctrl['packaging'].valueChanges,
         form_ctrl['rfd'].valueChanges,
+        form_ctrl['rate_box'].valueChanges,
         form_ctrl['dispatch'].valueChanges).subscribe(value => this.handleQtyInTabs(value, form_ctrl));
 
       this.subscription = merge(
@@ -521,14 +523,21 @@ export class ReportAddUpdateDlgComponent implements OnInit, OnDestroy {
   }
   handleQtyInTabs(value: any, form_ctrl: any) {
     let qty_in_tabs_val,
-      pack_type = form_ctrl['pack_type'].value,
-      order_qty = form_ctrl['order_qty'].value;
+      packaging = form_ctrl['packaging'].value,
+      order_qty = parseFloat(form_ctrl['order_qty'].value),
+      rate_box = form_ctrl['rate_box'].value;
 
-    if (pack_type && order_qty) {
-      if (pack_type.includes('*')) {
-        qty_in_tabs_val = (pack_type.split('*') as any[]).reduce((acc, cum) => parseFloat(acc) * parseFloat(cum)) * parseFloat(order_qty);
+    if (rate_box && order_qty) {
+      form_ctrl['billing_price'].patchValue(order_qty * rate_box);
+    } else {
+      form_ctrl['billing_price'].patchValue(0);
+    }
+
+    if (packaging && order_qty) {
+      if (packaging.includes('*')) {
+        qty_in_tabs_val = (packaging.split('*') as any[]).reduce((acc, cur) => parseFloat(acc) * parseFloat(cur)) * order_qty;
       } else {
-        qty_in_tabs_val = parseFloat(order_qty);
+        qty_in_tabs_val = order_qty;
       }
       form_ctrl['qty_in_tabs'].patchValue(qty_in_tabs_val);
     } else {
@@ -630,19 +639,9 @@ export class ReportAddUpdateDlgComponent implements OnInit, OnDestroy {
   }
 
   userAccessCheck(type: string = this.dialogData.type) {
-    let user: any = this.appservice.user;
-    let view_access: any = {
-      order_report: user.role == "Admin" || user.role == "Sales" || user.role == "Production" || user.role == "Dispatch" || user.role == "PPIC",
-      art_report: user.role == "Admin" || user.role == "Artwork",
-      rm_report: user.role == "Admin" || user.role == "PPIC",
-      pm_report: user.role == "Admin" || user.role == "PPIC",
-      ppic_report: user.role == "Admin" || user.role == "PPIC"
-    }
-    if (type.includes("master"))
-      return user.role == "Admin"
-    if (type in view_access)
-      return view_access[type];
-    return false;
+    if (this.appservice.user.role == 'Admin')
+      return true;
+    return this.appservice.access[this.appservice.user.role][type];
   }
 
   headingClicked(heading: string) {

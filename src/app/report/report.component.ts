@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, SimpleChanges } from '@angular/core';
+import { Component, OnInit, Input, SimpleChanges, ViewChild } from '@angular/core';
 import { AppService } from '../app.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
@@ -9,6 +9,7 @@ import { lastValueFrom, Observable } from 'rxjs';
 import { DatePipe } from '@angular/common';
 import { ExcelService } from '../excel.service';
 import { FormControl, FormGroup } from '@angular/forms';
+import { MatSort } from '@angular/material/sort';
 
 @Component({
   selector: 'app-report',
@@ -33,6 +34,11 @@ export class ReportComponent implements OnInit {
     end: new FormControl<Date | null>(new Date()),
   });
 
+  @ViewChild("report_table", { read: MatSort, static: true }) set smatSort(ms: MatSort) {
+    this.reportDataSource.sort = ms;
+    this.reportDataSource.data = this.reportDataSource.data.slice();
+  }
+
   ngOnChanges(changes: SimpleChanges) {
     if (changes["staticDS"]) {
       this.reportDataSource.data = changes["staticDS"].currentValue;
@@ -48,6 +54,18 @@ export class ReportComponent implements OnInit {
     ) {
     this.debounceSearch = this.appservice.debounceSearch(this.applyFilter.bind(this), 300);
     this.reportDataSource = new MatTableDataSource<any>([]);
+
+    
+      this.reportDataSource.filterPredicate = (data: any, filter: string) => {
+        const lowerCaseFilter = filter.toLowerCase();
+        if (this.type == 'order_report') {
+          return (
+            data.brand_name.toLowerCase().startsWith(lowerCaseFilter)
+          );
+        } else 
+          return JSON.stringify(data).toLowerCase().includes(lowerCaseFilter);
+      };
+    
   }
 
   setExportHeaders() {
@@ -155,7 +173,7 @@ export class ReportComponent implements OnInit {
       case 'brand_master': height = '100%'; break;
     }
     this.dialog.open(ReportAddUpdateDlgComponent, {
-      width: '90%', height: height, data: { row, ds: this.displayedColumns, type: this.type }, autoFocus: false
+      width: '90%', height: height, data: { row, ds: this.displayedColumns, type: this.type, reportType: this.reportType.value }, autoFocus: false
     }).afterClosed().subscribe(res => {
       if (res) {
         if ((this.type == "order_report" && res.order_status == "Completed") || ((this.type == "rm_master" || this.type == "pm_stock_master") && res.pending == 0))
@@ -295,5 +313,11 @@ export class ReportComponent implements OnInit {
   }
   exportToExcel(): void {
     this.excelService.generateExcel("multi", this.displayedColumns, this.reportDataSource.data, this.exportHeader, this.type);
+  }
+
+  userAccessCheck(type: string = this.type) {
+    if (this.appservice.user.role == "Admin")
+      return true;
+    return type in this.appservice.reportAddAccess[this.appservice.user.role];
   }
 }

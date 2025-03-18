@@ -1,4 +1,8 @@
 <mat-progress-bar role="progressbar" aria-label="Loading progress" class="progressbar" value="100" color="accent" [mode]="!saving ? 'determinate' : 'indeterminate'"></mat-progress-bar>
+<div *ngIf="saving" class="loading-shade">
+  <mat-spinner color="accent"></mat-spinner>
+</div>
+
 <h3 mat-dialog-title cdkDrag cdkDragBoundary=".cdk-global-overlay-wrapper" cdkDragRootElement=".cdk-overlay-pane" class="mat-dialog-title draggable dialog-header" cdkDragHandle>
   <span>
     {{dlgHeading}}
@@ -8,7 +12,7 @@
 
 </h3>
 <form [formGroup]="form" class="dialog-body report-form" #form_elem>
-  <div *ngFor="let item of columnDS; let index = index" [ngStyle]="{'width': item.width ? item.width : 'auto'}" [hidden]="clicked_heading.includes(item.right)">
+  <div *ngFor="let item of columnDS; let index = index" [ngStyle]="{'width': item.width ? item.width : 'auto'}" >
 
 
     <ng-container *ngIf="item.heading;">
@@ -17,6 +21,9 @@
         <mat-icon class="inner-icon" *ngIf="clicked_heading.includes(item.name)">keyboard_arrow_down</mat-icon>
         <mat-icon class="inner-icon" *ngIf="!clicked_heading.includes(item.name)">keyboard_arrow_up</mat-icon>
       </div>
+    </ng-container>
+    <ng-container *ngIf="item.horizontal_line;">
+      <hr />
     </ng-container>
     <ng-template #emptyBlock></ng-template>
 
@@ -34,7 +41,7 @@
         <div>
           <input type="file" #Image accept="image/jpeg, image/jpg" (change)="onFileSelected($event, item.colname)" style="display:none;" />
           <mat-form-field>
-            <input matInput name="imageName" [readonly]="'readonly'" (click)="Image.click()" [formControlName]="item.colname" placeholder="Image Name" maxlength="80" required>
+            <input matInput name="imageName" [readonly]="'readonly'" (click)="Image.click()" [formControlName]="item.colname" placeholder="Image Name" maxlength="80" >
           </mat-form-field>
           <button mat-raised-button class="choosefilebtn" color="accent" (click)="Image.click()">Choose File</button><br />
         </div>
@@ -45,7 +52,7 @@
     </ng-container>
 
     <ng-container *ngIf="item.expansion_table; else checkFormField">
-      <mat-expansion-panel expanded="true">
+      <mat-expansion-panel expanded="true" style="z-index: 0">
         <mat-expansion-panel-header>
           <mat-panel-title> {{item.name}} </mat-panel-title>
         </mat-expansion-panel-header>
@@ -83,7 +90,7 @@
     </ng-container>
 
     <ng-template #checkFormField>
-      <mat-form-field *ngIf="!item.toggle && !item.image && !item.heading" appearance="outline" [ngStyle]="{'width': item.width ? item.width : 'auto'}">
+      <mat-form-field *ngIf="!item.toggle && !item.image && !item.heading && !item.horizontal_line" appearance="outline" [ngStyle]="{'width': item.width ? item.width : 'auto'}">
         <mat-label>{{ item.name }}</mat-label>
 
         <ng-container *ngIf="item.isarray; else onlydate">
@@ -113,10 +120,11 @@
           <ng-container>
             <!--*ngIf="!item.master; else masterInput"-->
             <input type="text"
-                   placeholder="Pick one"
+                   [placeholder]="item.ph ? item.ph : 'Pick one'"
                    aria-label="Autofill"
                    matInput
                    [formControlName]="item.colname"
+                  
                    (blur)="onBlur(item.selection_list, item.colname, index)"
                    [matAutocomplete]="auto">
             <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onMasterSelectionChange($event, item.colname, item.master, item.order_master)">
@@ -133,5 +141,5 @@
 
 <div mat-dialog-actions align="end" class="dialog-action">
   <button mat-stroked-button color="accent" [mat-dialog-close]="null">Cancel</button>
-  <button mat-stroked-button color="accent" type="submit" [disabled]="form.invalid || !userAccessCheck()" (click)="save()">Save</button>
+  <button mat-stroked-button color="accent" type="submit" *ngIf="dialogData.reportType != 'Completed'" [disabled]="form.invalid || !userAccessCheck()" (click)="save()">Save</button>
 </div>

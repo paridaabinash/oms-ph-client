@@ -77,10 +77,22 @@ export class PpicReportComponent implements OnInit {
                     }
                      
 
-                    rm_pm_wo[item.rm_item_name].required_stock = required_qty;  // keep 4 precision of float value
+                    rm_pm_wo[item.rm_item_name].required_stock = this.appservice.limitDecimals(required_qty, 4);  // keep 4 precision of float value
+                    rm_pm_wo[item.rm_item_name].shortage = this.appservice.limitDecimals((rm_pm_wo[item.rm_item_name].present_stock + transit) - required_qty, 4);
+
                     rm_all[item.rm_item_name].required_stock ??= 0;
                     rm_all[item.rm_item_name].required_stock += rm_pm_wo[item.rm_item_name].required_stock;
-                    rm_all[item.rm_item_name].transit = totalPendingRM[0].value[item.rm_item_name];
+                    rm_all[item.rm_item_name].transit = totalPendingRM[0] ? totalPendingRM[0].value[item.rm_item_name] : 0;
+
+                    rm_all[item.rm_item_name].shortage ??= 0;
+                    rm_all[item.rm_item_name].shortage += rm_pm_wo[item.rm_item_name].shortage;
+
+                    if (rm_pm_wo[item.rm_item_name].shortage < 0) {
+                      rm_pm_wo[item.rm_item_name].ishighlight = true;
+                    }
+                    if (rm_all[item.rm_item_name].shortage < 0) {
+                      rm_pm_wo[item.rm_item_name].ishighlight = true;
+                    }
 
                     this.ppic_wo_ds.push({ ...rm_pm_wo[item.rm_item_name], item_name: item.rm_item_name, wo: wo, transit: transit });
                   });
@@ -100,10 +112,23 @@ export class PpicReportComponent implements OnInit {
                       transit = 0;
                     }
 
-                    rm_pm_wo[item.pm_item_name].required_stock = required_qty;  // keep 4 precision of float value
+                    rm_pm_wo[item.pm_item_name].required_stock = this.appservice.limitDecimals(required_qty, 4);  // keep 4 precision of float value
+                    rm_pm_wo[item.pm_item_name].shortage = this.appservice.limitDecimals((rm_pm_wo[item.pm_item_name].present_stock + transit) - required_qty, 4);
+
+
                     pm_all[item.pm_item_name].required_stock ??= 0;
                     pm_all[item.pm_item_name].required_stock += rm_pm_wo[item.pm_item_name].required_stock;
-                    pm_all[item.pm_item_name].transit = totalPendingPM[0].value[item.pm_item_name];
+                    pm_all[item.pm_item_name].transit = totalPendingPM[0] ? totalPendingPM[0].value[item.pm_item_name] : 0;
+
+                    pm_all[item.pm_item_name].shortage ??= 0;
+                    pm_all[item.pm_item_name].shortage += rm_pm_wo[item.pm_item_name].shortage;
+
+                    if (rm_pm_wo[item.pm_item_name].shortage < 0) {
+                      rm_pm_wo[item.pm_item_name].ishighlight = true;
+                    }
+                    if (pm_all[item.pm_item_name].shortage < 0) {
+                      rm_pm_wo[item.pm_item_name].ishighlight = true;
+                    }
 
                     this.ppic_wo_ds.push({ ...rm_pm_wo[item.pm_item_name], item_name: item.pm_item_name, wo: wo, transit: transit });
                   });

@@ -30,6 +30,7 @@ import { CdkAccordionModule } from '@angular/cdk/accordion';
 import { MatNativeDateModule, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSortModule } from '@angular/material/sort';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -113,7 +114,9 @@ export const MY_FORMATS = {
     MatExpansionModule,
     CdkAccordionModule,
     MatProgressSpinnerModule,
-    MatPaginatorModule
+    MatPaginatorModule,
+    MatSortModule
+
   ],
   providers: [
     { provide: MAT_DATE_LOCALE, useValue: 'en-GB' }, // Sets locale

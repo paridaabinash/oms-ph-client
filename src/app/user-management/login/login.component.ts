@@ -3,7 +3,7 @@ import { AppService } from '../../app.service';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { lastValueFrom, Observable } from 'rxjs';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -27,7 +27,7 @@ export class LoginComponent {
     this.saving = true;
     let form_val = this.form.value;
     const response = await lastValueFrom(this.appservice.login({ username: form_val.userid, password: form_val.password }))
-    if (response) {
+    if (response && response.hasOwnProperty("user")) {
       this.sb.open("Login Successful", "", {
         duration: 2000,
         horizontalPosition: 'center', // You can customize this

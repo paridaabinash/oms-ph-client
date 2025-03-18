@@ -11,9 +11,9 @@
   </mat-tab>
 
   <mat-tab label="All RM/PM PPIC">
-    <div *ngIf="activeTabIndex === 1" style="display: flex; flex-direction: column;">
-      <app-report style="flex: 1" type="ppic_all_rm" [displayedColumns]="appservice.ppic_all_rm" [staticDS]="ppic_all_rm" [isStatic]="true"></app-report>
-      <app-report style="flex: 1" type="ppic_all_pm" [displayedColumns]="appservice.ppic_all_pm" [staticDS]="ppic_all_pm" [isStatic]="true"></app-report>
+    <div *ngIf="activeTabIndex === 1" style="display: flex; flex-direction: column; height: 100%; overflow: hidden;">
+      <app-report style="flex: 1; min-height: 0; " type="ppic_all_rm" [displayedColumns]="appservice.ppic_all_rm" [staticDS]="ppic_all_rm" [isStatic]="true"></app-report>
+      <app-report style="flex: 1; min-height: 0; " type="ppic_all_pm" [displayedColumns]="appservice.ppic_all_pm" [staticDS]="ppic_all_pm" [isStatic]="true"></app-report>
     </div>
   </mat-tab>
 

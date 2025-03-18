@@ -103,6 +103,13 @@ export class RegisterComponent implements OnInit {
       this.appservice.RegisterUser(form_val)
         .subscribe({
           next: (response) => {
+            if (response.hasOwnProperty("error")) {
+              this.sb.open(response.message, "", {
+                duration: 2000,
+              });
+              this.saving = false;
+              return;
+            }
             this.sb.open("User Created Successfully", "", {
               duration: 2000,
             });

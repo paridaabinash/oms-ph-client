@@ -11,8 +11,8 @@
     </div>
 
     <div class="toolbar-user">
-      <mat-icon *ngIf="!appservice.user.isAdmin">person_outline</mat-icon>
-      <mat-icon *ngIf="appservice.user.isAdmin">security</mat-icon>
+      <mat-icon *ngIf="appservice.user.role != 'Admin'">person_outline</mat-icon>
+      <mat-icon *ngIf="appservice.user.role == 'Admin'">security</mat-icon>
       <h3>{{appservice.user.displayname}}</h3>
       <button mat-icon-button matTooltip="Logout" class="logout" (click)="logout()"><mat-icon>exit_to_app</mat-icon></button>
     </div>
@@ -34,7 +34,7 @@
         </a>
       </mat-nav-list>-->
 
-      <mat-nav-list>
+      <mat-nav-list *ngIf="checkUserAccess('order_report')">
         <a mat-list-item (click)="selectedMenu = 'order_report'; menuClick();" class="list_anchor" [ngClass]="{'activated': selectedMenu === 'order_report'}">
           <span class="entry">
             <mat-icon>library_books</mat-icon>
@@ -43,7 +43,7 @@
         </a>
       </mat-nav-list>
 
-      <mat-nav-list>
+      <mat-nav-list *ngIf="checkUserAccess('art_report')">
         <a mat-list-item (click)="selectedMenu = 'art_report'; menuClick();" class="list_anchor" [ngClass]="{'activated': selectedMenu === 'art_report'}">
           <span class="entry">
             <mat-icon>av_timer</mat-icon>
@@ -52,7 +52,7 @@
         </a>
       </mat-nav-list>
 
-      <mat-nav-list>
+      <mat-nav-list *ngIf="checkUserAccess('rm_report')">
         <a mat-list-item (click)="selectedMenu = 'rm_report'; menuClick();" class="list_anchor" [ngClass]="{'activated': selectedMenu === 'rm_report'}">
           <span class="entry">
             <mat-icon>av_timer</mat-icon>
@@ -61,7 +61,7 @@
         </a>
       </mat-nav-list>
 
-      <mat-nav-list>
+      <mat-nav-list *ngIf="checkUserAccess('pm_report')">
         <a mat-list-item (click)="selectedMenu = 'pm_report'; menuClick();" class="list_anchor" [ngClass]="{'activated': selectedMenu === 'pm_report'}">
           <span class="entry">
             <mat-icon>format_paint</mat-icon>
@@ -70,7 +70,25 @@
         </a>
       </mat-nav-list>
 
-      <mat-nav-list>
+      <mat-nav-list *ngIf="appservice.user.role == 'Store'">
+        <a mat-list-item (click)="selectedMenu = 'rm_master'; menuClick();" class="list_anchor" [ngClass]="{'activated': selectedMenu === 'rm_master'}">
+          <span class="entry">
+            <mat-icon>format_paint</mat-icon>
+            <span>RM List</span>
+          </span>
+        </a>
+      </mat-nav-list>
+
+      <mat-nav-list *ngIf="appservice.user.role == 'Store'">
+        <a mat-list-item (click)="selectedMenu = 'pm_stock_master'; menuClick();" class="list_anchor" [ngClass]="{'activated': selectedMenu === 'pm_stock_master'}">
+          <span class="entry">
+            <mat-icon>format_paint</mat-icon>
+            <span>PM List</span>
+          </span>
+        </a>
+      </mat-nav-list>
+
+      <mat-nav-list *ngIf="checkUserAccess('ppic_report')">
         <a mat-list-item (click)="selectedMenu = 'ppic_report'; menuClick();" class="list_anchor" [ngClass]="{'activated': selectedMenu === 'ppic_report'}">
           <span class="entry">
             <mat-icon>format_paint</mat-icon>
@@ -78,6 +96,7 @@
           </span>
         </a>
       </mat-nav-list>
+
 
       <br />
       <ng-container *ngIf="appservice.user.role == 'Admin'">
@@ -119,8 +138,11 @@
     <app-report type="pm_report" [displayedColumns]="appservice.pmDS" *ngIf="selectedMenu == 'pm_report'"></app-report>
     <app-user-management *ngIf="selectedMenu == 'user_mgmt'"></app-user-management>
     <app-master type="master" [displayedColumns]="appservice.allColumnMaster" *ngIf="selectedMenu == 'master'"></app-master>
-    <app-linking-master type="linking_master" *ngIf="selectedMenu == 'linking_master'"></app-linking-master>
     <app-ppic-report *ngIf="selectedMenu == 'ppic_report'"></app-ppic-report>
+    <app-linking-master type="linking_master" *ngIf="selectedMenu == 'linking_master'"></app-linking-master>
+
+    <app-report *ngIf="selectedMenu == 'rm_master'" type="rm_master" [displayedColumns]="appservice.rmMaster"></app-report>
+    <app-report *ngIf="selectedMenu == 'pm_stock_master'" type="pm_stock_master" [displayedColumns]="appservice.pmStockMaster"></app-report>
 
   </mat-sidenav-content>
 </mat-sidenav-container>
