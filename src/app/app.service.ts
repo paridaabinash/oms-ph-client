@@ -33,7 +33,7 @@ export class AppService {
     "Sales": { order_report: true },
     "Purchase": { order_report: true, rm_report: true, pm_report: true },
     "Artwork": { art_report: true },
-    "Store": { order_report: true, rm_master: true, pm_stock_master: true },
+    "Store": { order_report: true, rm_report: true, pm_report: true, rm_master: true, pm_stock_master: true },
     "Production": { order_report: true },
     "Packaging Material": { order_report: true },
     "PPIC": { order_report: true, rm_report: true, pm_report: true, ppic_report: true },
@@ -57,7 +57,7 @@ export class AppService {
     { colname: 'po_final_date', name: 'PO Finalization Date', datefill: true, datepicker: true, right: 'Sales' },
     { colname: 'wo_number', name: 'Work Order No.', autofill: true, displayCol: true, right: 'Sales' },
     { colname: 'order_type', name: 'Order Type', autocomplete: true, selection_list: [], displayCol: true, right: 'Sales', required: true },
-    { colname: 'brand_name', name: 'Brand Name', autocomplete: true, selection_list: [], master: true, displayCol: true, right: 'Sales', removeColumnMater: true, disable_after: true, required: true },
+    { colname: 'brand_name', name: 'Brand Name', autocomplete: true, selection_list: [], master: true, displayCol: true, right: 'Sales', disable_after: true, required: true },
 
     { colname: "hr1", horizontal_line: true, width: '100%' },
 
@@ -72,7 +72,7 @@ export class AppService {
     { colname: "hr2", horizontal_line: true, width: '100%' },
 
     //packaging master -
-    { colname: 'packaging_code', name: 'Packing Code', autocomplete: true, selection_list: [], master: true, right: 'Sales', required: true },
+    { colname: 'packaging_code', name: 'Packing Code', autocomplete: true, selection_list: [], master: true, right: 'Sales', required: true, disable_after: true },
     { colname: 'packaging', name: 'Packing', autofill: true, right: 'Sales' },
     { colname: 'packaging_type', name: 'Packing Type', autofill: true, right: 'Sales' },
     { colname: 'leading_brand', name: 'Leading Brand', autofill: true, right: 'Sales' },
@@ -92,7 +92,8 @@ export class AppService {
 
     { colname: 'order_qty', name: 'Order Qty', input_field: true, input_type: "number", displayCol: true, right: 'Sales', required: true },
     { colname: 'mrp', name: 'MRP', input_field: true, right: 'Sales' },
-    { colname: 'carton_type', name: 'Carton Type', autocomplete: true, selection_list: [] },
+    { colname: 'base_foil_colot_specs', name: 'Base Foil Colot Specs', autocomplete: true, selection_list: [], right: 'Sales' },
+    { colname: 'carton_type', name: 'Carton Type', autocomplete: true, selection_list: [], right: 'Sales' },
     { colname: 'strip_bottle_tube_type', name: 'Strip/Bottle/Tube Type', autocomplete: true, selection_list: [], right: 'Sales' },
     { colname: 'base_foil_sticker_type', name: 'Base Foil/Sticker Type', autocomplete: true, selection_list: [], right: 'Sales' },
     { colname: 'dye', name: 'Dye', autocomplete: true, selection_list: [], right: 'Sales' },
@@ -114,11 +115,14 @@ export class AppService {
     { colname: "h3", name: 'Production', heading: true, width: '100%' },
     { colname: 'wip', name: 'WIP', autocomplete: true, selection_list: [], right: 'Production' },
 
-    { colname: "h4", name: 'Dispatch', heading: true, width: '100%' },
-    { colname: 'rfd', name: 'RFD Qty', input_field: true, right: 'Dispatch', input_type: "number" },
+    { colname: "h4", name: 'Packing', heading: true, width: '100%' },
+    { colname: 'rfd', name: 'RFD Qty', input_field: true, right: 'Packing', input_type: "number" },
+
+    { colname: "h5", name: 'Dispatch', heading: true, width: '100%' },
     { colname: 'dispatch', name: 'Dispatch Qty', input_field: true, right: 'Dispatch', input_type: "number" },
 
-    { colname: "h5", name: 'Purchase', heading: true, width: '100%' },
+   
+    { colname: "h6", name: 'Purchase', heading: true, width: '100%' },
     { colname: 'tube_sticker_foil_ordered', name: 'Ordered Tube/Sticker/Foil', right: 'Purchase', input_field: true },
     { colname: 'tube_sticker_foil_recieved', name: 'Received Tube/Sticker/Foil', right: 'Purchase', input_field: true },
     { colname: 'outer_carton_ordered', name: 'Ordered Outer Carton', right: 'Purchase', input_field: true },
@@ -142,9 +146,10 @@ export class AppService {
     { colname: 'party_name', name: 'Party Name', autofill: true, displayCol: true },
     { colname: 'brand_name', name: 'Brand Name', autofill: true, displayCol: true },
 
-    { colname: 'carton_artwork_code_inner', name: 'Carton Inner Artwork Code', autofill: true },
-    { colname: 'carton_artwork_code_outer', name: 'Carton Outer Artwork Code', autofill: true },
-    { colname: 'tube_sticker_foil_artwork_code', name: 'Tube/Sticker/Foil Artwork Code', autofill: true },
+    { colname: 'carton_artwork_code_inner', name: 'Carton Inner Artwork Code' },
+    { colname: 'carton_artwork_code_outer', name: 'Carton Outer Artwork Code' },
+    { colname: 'tube_sticker_foil_artwork_code', name: 'Tube/Sticker/Foil Artwork Code' },
+    { colname: 'base_foil_artwork_code', name: 'Base Foil Artwork Code' },
 
 
     { colname: 'composition_generic_name', name: 'Generic Name', autofill: true, input_field: true, width: '100%' },
@@ -158,9 +163,10 @@ export class AppService {
 
     { colname: 'qc_approve_status', name: 'QC Approve Status', autocomplete: true, selection_list: [], displayCol: true },
     { colname: 'artwork_status', name: 'Artwork Status', width: '100%', toggle: true, toggle_value: ["Pending", "Complete"], default: "Pending", displayCol: true },
-    { colname: 'carton_artwork_inner', name: 'Carton Inner Artwork', image: true },
-    { colname: 'carton_artwork_outer', name: 'Carton Outer Artwork', image: true },
-    { colname: 'tube_sticker_foil_artwork', name: 'Tube/Sticker/Foil Artwork', image: true },
+    { colname: 'carton_artwork_inner', name: 'Carton Inner Artwork', image: true},
+    { colname: 'carton_artwork_outer', name: 'Carton Outer Artwork', image: true, required: true },
+    { colname: 'tube_sticker_foil_artwork', name: 'Tube/Sticker/Foil Artwork', image: true, required: true },
+    { colname: 'base_foil_artwork', name: 'Base Foil Artwork', image: true },
   ];
 
   rmDS: any[] = [
@@ -178,10 +184,10 @@ export class AppService {
     { colname: 'party_name', name: 'Party Name', autofill: true },
     { colname: 'po_number', name: 'PO Number', input_field: true, displayCol: true },
     { colname: 'po_date', name: 'PO Date', datepicker: true, displayCol: true, datefill: true },
-    { colname: 'rate', name: 'Rate', input_field: true },
+    { colname: 'rate', name: 'Rate', input_field: true, displayCol: true },
     { colname: 'broker', name: 'Broker', autocomplete: true, selection_list: [] },
-    { colname: 'logistic', name: 'Logistic', autocomplete: true, selection_list: [] },
-    { colname: 'pay', name: 'Pay', input_field: true },
+    { colname: 'logistic', name: 'Logistic', autocomplete: true, selection_list: [], displayCol: true },
+    { colname: 'pay', name: 'Pay', input_field: true, displayCol: true },
     { colname: 'qty_recieved', name: 'Received Qty', input_field: true, displayCol: true, input_type: "number" },
     { colname: 'pending', name: 'Pending', autofill: true, displayCol: true },
     { colname: 'status', name: 'Status', input_field: true, displayCol: true },
@@ -196,26 +202,17 @@ export class AppService {
     { colname: 'po_number', name: 'PO Number', input_field: true, displayCol: true },
     { colname: 'po_date', name: 'PO Date', datepicker: true, displayCol: true, datefill: true },
     { colname: 'dye', name: 'Dye', autofill: true },
-    { colname: 'carton_size_inner', name: 'Carton Size Inner', autofill: true },
-    { colname: 'carton_size_outer', name: 'Carton Size Outer', autofill: true },
+    { colname: 'carton_size_inner', name: 'Carton Size Inner', autofill: true, displayCol: true },
+    { colname: 'carton_size_outer', name: 'Carton Size Outer', autofill: true, displayCol: true },
     { colname: 'packaging', name: 'Pack Type', autofill: true, displayCol: true },
     { colname: 'po_quantity', name: 'PO Quantity', displayCol: true, disable_after: true, input_type: "number", required: true }, 
-    { colname: 'rate', name: 'Rate', input_field: true },
+    { colname: 'rate', name: 'Rate', input_field: true, displayCol: true },
     { colname: 'order_type', name: 'Order Type', autofill: true },
-    { colname: 'specification', name: 'Specification', input_field: true },
+    { colname: 'specification', name: 'Specification', input_field: true, displayCol: true },
     { colname: 'qty_recieved', name: 'Received Qty', input_field: true, displayCol: true, input_type: "number" },
     { colname: 'pending', name: 'Pending Qty', autofill: true, displayCol: true }, // order qty - recvd qty
     { colname: 'status', name: 'Status', input_field: true, displayCol: true },
     { colname: 'remarks', name: 'Remarks', input_field: true }
-  ];
-  //this.orderDS.filter(col => !this.excludedHistoryMaster.some(exc => col.hasOwnProperty(exc))),
-
-  excludedHistoryMaster: string[] = ["input_field", "autofill", "datepicker", "master", "toggle", "image", "removeColumnMater", "horizontal_line", "heading"];
-  allColumnMaster: any[] = [
-    this.orderDS.filter(col => !this.excludedHistoryMaster.some(exc => col.hasOwnProperty(exc))),
-    this.rmDS.filter(col => !this.excludedHistoryMaster.some(exc => col.hasOwnProperty(exc))),
-    this.pmDS.filter(col => !this.excludedHistoryMaster.some(exc => col.hasOwnProperty(exc))),
-    this.artDS.filter(col => !this.excludedHistoryMaster.some(exc => col.hasOwnProperty(exc)))
   ];
 
   // Linking Master -------------------------------
@@ -268,6 +265,18 @@ export class AppService {
     { colname: 'pm_item_name', name: 'PM Stock Name', width: '100%', autocomplete: true, selection_list: [], displayCol: true },
     { colname: 'calc_offset', name: 'PM Calculation Offset (Per 1 Lakh)', width: '100%', input_field: true, input_type: "number", displayCol: true, required: true },
   ]
+
+  excludedHistoryMaster: string[] = ["input_field", "autofill", "datepicker", "master", "toggle", "image", "removeColumnMater", "horizontal_line", "heading"];
+  allColumnMaster: any[] = [
+    this.orderDS.filter(col => !this.excludedHistoryMaster.some(exc => col.hasOwnProperty(exc))),
+    this.rmDS.filter(col => !this.excludedHistoryMaster.some(exc => col.hasOwnProperty(exc))),
+    this.pmDS.filter(col => !this.excludedHistoryMaster.some(exc => col.hasOwnProperty(exc))),
+    this.artDS.filter(col => !this.excludedHistoryMaster.some(exc => col.hasOwnProperty(exc))),
+    this.compositionMaster.filter(col => !this.excludedHistoryMaster.some(exc => col.hasOwnProperty(exc))),
+    this.packageMaster.filter(col => !this.excludedHistoryMaster.some(exc => col.hasOwnProperty(exc))),
+    this.rmMaster.filter(col => !this.excludedHistoryMaster.some(exc => col.hasOwnProperty(exc))),
+    this.pmStockMaster.filter(col => !this.excludedHistoryMaster.some(exc => col.hasOwnProperty(exc))),
+  ];
 
   ppic_wo_ds: any[] = [
     { colname: 'wo', name: 'Work Order No.' },

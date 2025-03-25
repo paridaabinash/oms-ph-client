@@ -161,7 +161,8 @@ export class ReportAddUpdateDlgComponent implements OnInit, OnDestroy {
     let form = this.form;
     this.columnDS.forEach(item => {
       if (!item.heading && !item.horizontal_line) { //skipping heading rows in order_report
-        const controlval = this.dialogData.row ? this.dialogData.row[item.colname] : (item.isarray ? [] : ("default" in item ? item.default : ''));
+        const controlval = this.dialogData.row ? this.dialogData.row[item.colname]
+          : (item.isarray ? [] : ("default" in item ? item.default : ''));
 
         (form.get(item.colname) as FormControl).setValue(controlval);
 
@@ -325,11 +326,13 @@ export class ReportAddUpdateDlgComponent implements OnInit, OnDestroy {
       if (type == 'Master Linking') {
         for (let col in this.filteredOptions) { // save new lists
           if (!(col in this.orderMaster) || !this.orderMaster[col].includes(form_val[col])) {
-            //? (this.orderMaster[col] as any[]).some(obj => obj._id == response._id) : this.orderMaster[col].includes(form_val[col]))
             if (!this.orderMaster[col])
               this.orderMaster[col] = [];
             if (form_val[col])
               this.orderMaster[col].push(form_val[col]);
+            //if (this.dialogData.row[col] != form_val[col] && this.orderMaster[col].includes(this.dialogData.row[col]))
+            //  this.orderMaster[col].splice(this.orderMaster[col].indexOf(this.dialogData.row[col]), 1);
+              
             master_changed = true;
           }
         }

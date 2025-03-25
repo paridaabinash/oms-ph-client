@@ -176,7 +176,9 @@ export class ReportComponent implements OnInit {
       width: '90%', height: height, data: { row, ds: this.displayedColumns, type: this.type, reportType: this.reportType.value }, autoFocus: false
     }).afterClosed().subscribe(res => {
       if (res) {
-        if ((this.type == "order_report" && res.order_status == "Completed") || ((this.type == "rm_master" || this.type == "pm_stock_master") && res.pending == 0))
+        if ((this.type == "order_report" && res.order_status == "Completed")
+          || (this.type == "art_report" && res.artwork_status == "Complete")
+            || ((this.type == "rm_master" || this.type == "pm_stock_master") && res.pending == 0))
           this.reportDataSource.data.splice(index, 1);
         else
           this.reportDataSource.data.splice(index, 1, res);
@@ -270,12 +272,21 @@ export class ReportComponent implements OnInit {
     if (this.isStatic || isHandset)
       return this.displayedColumns.map(col => col.colname);
     else
-      return this.displayAllCol ?
-        this.displayedColumns.map(col => col.colname).concat('action') :
-        this.displayedColumns.reduce((acc, col) => {
-          if (col.displayCol) acc.push(col.colname);
+      //return this.displayAllCol ?
+      //  this.displayedColumns.map(col => col.colname).concat('action') :
+      return this.type.includes("master") ?
+       this.displayedColumns.reduce((acc, col) => {
+        if (col.displayCol)
+          acc.push(col.colname);
+
           return acc;
-        }, []).concat('action');
+       }, []).concat('action')
+        :  this.displayedColumns.reduce((acc, col) => {
+         if (!col.heading && !col.horizontal_line)
+          acc.push(col.colname);
+
+          return acc;
+       }, []).concat('action')
   }
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;

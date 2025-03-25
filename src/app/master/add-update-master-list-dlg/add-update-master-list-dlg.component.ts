@@ -21,14 +21,14 @@ export class AddUpdateMasterListDlgComponent implements OnInit {
     public dialogref: MatDialogRef<AddUpdateMasterListDlgComponent>
   ) {
     this.form = this.fb.group({
-      _id: [this.dialogData.row ? this.dialogData.row._id : ''],
-      name: [this.dialogData.row ? this.dialogData.row.name : '']
+      //_id: [this.dialogData.row ? this.dialogData.row._id : ''],
+      name: [this.dialogData.row ?? '']
     });
   }
 
   ngOnInit() { }
 
   save() {
-    this.dialogref.close(this.dialogData.idAndName ? this.form.value : this.form.value.name);
+    this.dialogref.close(this.form.value.name);
   }
 }

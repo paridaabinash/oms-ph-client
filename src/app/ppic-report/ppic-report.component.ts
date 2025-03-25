@@ -71,7 +71,7 @@ export class PpicReportComponent implements OnInit {
                     let required_qty = (balance_qty * calc_offset) / 100000; // calculate pending
                     let transit = 0;
                     try {
-                      transit = woPendingRM[0].value[wo][item.rm_item_name] ?? 0;
+                      transit = woPendingRM[0] ? woPendingRM[0].value[wo][item.rm_item_name] : 0;
                     } catch {
                       transit = 0;
                     }
@@ -79,10 +79,11 @@ export class PpicReportComponent implements OnInit {
 
                     rm_pm_wo[item.rm_item_name].required_stock = this.appservice.limitDecimals(required_qty, 4);  // keep 4 precision of float value
                     rm_pm_wo[item.rm_item_name].shortage = this.appservice.limitDecimals((rm_pm_wo[item.rm_item_name].present_stock + transit) - required_qty, 4);
-
+                    if (!rm_pm_wo[item.rm_item_name].shortage)
+                      rm_pm_wo[item.rm_item_name].shortage = 0;
                     rm_all[item.rm_item_name].required_stock ??= 0;
                     rm_all[item.rm_item_name].required_stock += rm_pm_wo[item.rm_item_name].required_stock;
-                    rm_all[item.rm_item_name].transit = totalPendingRM[0] ? totalPendingRM[0].value[item.rm_item_name] : 0;
+                    rm_all[item.rm_item_name].transit = totalPendingRM[0] && totalPendingRM[0].value[item.rm_item_name] ? totalPendingRM[0].value[item.rm_item_name] : 0;
 
                     rm_all[item.rm_item_name].shortage ??= 0;
                     rm_all[item.rm_item_name].shortage += rm_pm_wo[item.rm_item_name].shortage;
@@ -107,18 +108,19 @@ export class PpicReportComponent implements OnInit {
                     let required_qty = (balance_qty * calc_offset) / 100000;  // calculate pending
                     let transit = 0;
                     try {
-                      transit = woPendingPM[0].value[wo][item.pm_item_name];
+                      transit = woPendingPM[0] ? woPendingPM[0].value[wo][item.pm_item_name] : 0;
                     } catch {
                       transit = 0;
                     }
 
                     rm_pm_wo[item.pm_item_name].required_stock = this.appservice.limitDecimals(required_qty, 4);  // keep 4 precision of float value
                     rm_pm_wo[item.pm_item_name].shortage = this.appservice.limitDecimals((rm_pm_wo[item.pm_item_name].present_stock + transit) - required_qty, 4);
-
+                    if (!rm_pm_wo[item.pm_item_name].shortage)
+                      rm_pm_wo[item.pm_item_name].shortage = 0;
 
                     pm_all[item.pm_item_name].required_stock ??= 0;
                     pm_all[item.pm_item_name].required_stock += rm_pm_wo[item.pm_item_name].required_stock;
-                    pm_all[item.pm_item_name].transit = totalPendingPM[0] ? totalPendingPM[0].value[item.pm_item_name] : 0;
+                    pm_all[item.pm_item_name].transit = totalPendingPM[0] && totalPendingPM[0].value[item.pm_item_name] ? totalPendingPM[0].value[item.pm_item_name] : 0;
 
                     pm_all[item.pm_item_name].shortage ??= 0;
                     pm_all[item.pm_item_name].shortage += rm_pm_wo[item.pm_item_name].shortage;

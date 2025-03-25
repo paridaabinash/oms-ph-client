@@ -46,43 +46,56 @@ export class MasterComponent implements OnInit {
   }
 
   onTabChange(event: any) {
-    if (event.index == 0) {
-      for (let res in this.orderMaster) { // add all selection lists to ds
-        let selection_col_ind = this.appservice.orderDS.findIndex(col => col.colname == res);
-        if (selection_col_ind != -1) {
-          this.appservice.orderDS[selection_col_ind].selection_list = this.orderMaster[res];
+    //if (event.index == 0) {
+    //  for (let res in this.orderMaster) { // add all selection lists to ds
+    //    let selection_col_ind = this.appservice.orderDS.findIndex(col => col.colname == res);
+    //    if (selection_col_ind != -1) {
+    //      this.appservice.orderDS[selection_col_ind].selection_list = this.orderMaster[res];
+    //    }
+    //  }
+    //  this.reportDS = this.appservice.orderDS;
+    //}
+    //else if (event.index == 1) {
+    //  for (let res in this.orderMaster) { // add all selection lists to ds
+    //    let selection_col_ind = this.appservice.rmDS.findIndex(col => col.colname == res);
+    //    if (selection_col_ind != -1) {
+    //      this.appservice.rmDS[selection_col_ind].selection_list = this.orderMaster[res];
+    //    }
+    //  }
+    //  this.reportDS = this.appservice.rmDS;
+    //}
+    //else if (event.index == 2) {
+    //  for (let res in this.orderMaster) { // add all selection lists to ds
+    //    let selection_col_ind = this.appservice.pmDS.findIndex(col => col.colname == res);
+    //    if (selection_col_ind != -1) {
+    //      this.appservice.pmDS[selection_col_ind].selection_list = this.orderMaster[res];
+    //    }
+    //  }
+    //  this.reportDS = this.appservice.pmDS;
+    //}
+    //else if (event.index == 3) {
+    //  for (let res in this.orderMaster) { // add all selection lists to ds
+    //    let selection_col_ind = this.appservice.artDS.findIndex(col => col.colname == res);
+    //    if (selection_col_ind != -1) {
+    //      this.appservice.artDS[selection_col_ind].selection_list = this.orderMaster[res];
+    //    }
+    //  }
+    //  this.reportDS = this.appservice.artDS;
+    //}
+    let ds_array = ["orderDS", "rmDS", "pmDS", "artDS", "compositionMaster", "packageMaster", "rmMaster", "pmStockMaster"]
+    for (let i = 0; i < 7; i++) {
+      if (event.index == i) {
+        for (let res in this.orderMaster) { // add all selection lists to ds
+          let selection_col_ind = ((this.appservice as any)[ds_array[i]] as any[]).findIndex(col => col.colname == res);
+          if (selection_col_ind != -1) {
+            ((this.appservice as any)[ds_array[i]] as any[])[selection_col_ind].selection_list = this.orderMaster[res];
+          }
         }
+        this.reportDS = ((this.appservice as any)[ds_array[i]] as any[]);
       }
-      this.reportDS = this.appservice.orderDS;
     }
-    else if (event.index == 1) {
-      for (let res in this.orderMaster) { // add all selection lists to ds
-        let selection_col_ind = this.appservice.rmDS.findIndex(col => col.colname == res);
-        if (selection_col_ind != -1) {
-          this.appservice.rmDS[selection_col_ind].selection_list = this.orderMaster[res];
-        }
-      }
-      this.reportDS = this.appservice.rmDS;
-    }
-    else if (event.index == 2) {
-      for (let res in this.orderMaster) { // add all selection lists to ds
-        let selection_col_ind = this.appservice.pmDS.findIndex(col => col.colname == res);
-        if (selection_col_ind != -1) {
-          this.appservice.pmDS[selection_col_ind].selection_list = this.orderMaster[res];
-        }
-      }
-      this.reportDS = this.appservice.pmDS;
-    }
-    else if (event.index == 3)
-      for (let res in this.orderMaster) { // add all selection lists to ds
-        let selection_col_ind = this.appservice.artDS.findIndex(col => col.colname == res);
-        if (selection_col_ind != -1) {
-          this.appservice.artDS[selection_col_ind].selection_list = this.orderMaster[res];
-        }
-      }
-    this.reportDS = this.appservice.artDS;
   }
-
+  ds_array: string[] = ["Order Report", "RM Report", "PM Report", "Artwork Report", "Composition List", "Packaging List", "RM List", "PM List"]
   addMaster(col: any) {
 
     let index = this.reportDS.findIndex(cl => cl.colname == col.colname);
