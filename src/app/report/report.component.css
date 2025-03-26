@@ -26,6 +26,7 @@
 
 th:last-child, td:last-child {
   width: 5em;
+  align-self: center;
 }
 
 .icon-btn {

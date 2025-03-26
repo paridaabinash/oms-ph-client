@@ -293,7 +293,7 @@ export class ReportAddUpdateDlgComponent implements OnInit, OnDestroy {
   async save() {
     this.saving = true;
     let form_val = this.form.getRawValue();
-    if (this.dialogData.row) {
+    if (this.dialogData.row && !this.dialogData.clone) {
       form_val._id = this.dialogData.row._id;
       form_val._rev = this.dialogData.row._rev;
       form_val.created_at = this.dialogData.row.created_at;
@@ -315,14 +315,34 @@ export class ReportAddUpdateDlgComponent implements OnInit, OnDestroy {
       case 'rm_master':
       case 'pm_stock_master':
       case 'brand_master':
-      case 'packaging_master': saveFunc = this.dialogData.row ? this.appservice.UpdateLinkingMaster(form_val) : this.appservice.CreateLinkingMaster(form_val); type = "Master Linking"; break;
+      case 'packaging_master': saveFunc = this.dialogData.row && !this.dialogData.clone ? this.appservice.UpdateLinkingMaster(form_val) : this.appservice.CreateLinkingMaster(form_val); type = "Master Linking"; break;
       case 'brand_master_rm':
       case 'brand_master_pm': this.dialogref.close(form_val); return;
       default:
         throw new Error('Invalid report type');
     }
     try {
-      let response = await lastValueFrom(saveFunc)
+      let response = await lastValueFrom(saveFunc);
+      if (response.error) {
+        let duplicate_error_msg = "Duplicate ";
+        if (response.error.includes("conflict")) {
+          switch (this.dialogData.type) {
+            case 'composition_master': duplicate_error_msg += " Compostion Code "; break;
+            case 'rm_master': duplicate_error_msg += " RM Name "; break;
+            case 'pm_stock_master': duplicate_error_msg += " PM Name "; break;
+            case 'brand_master': duplicate_error_msg += " Brand Name "; break;
+            case 'packaging_master': duplicate_error_msg += " Packing Code "; break;
+          }
+        } else {
+          duplicate_error_msg = "";
+        }
+        this.sb.open(duplicate_error_msg + response.error, "", {
+          duration: 2000
+        });
+        this.saving = false;
+        return;
+      }
+
       if (type == 'Master Linking') {
         for (let col in this.filteredOptions) { // save new lists
           if (!(col in this.orderMaster) || !this.orderMaster[col].includes(form_val[col])) {
@@ -332,7 +352,7 @@ export class ReportAddUpdateDlgComponent implements OnInit, OnDestroy {
               this.orderMaster[col].push(form_val[col]);
             //if (this.dialogData.row[col] != form_val[col] && this.orderMaster[col].includes(this.dialogData.row[col]))
             //  this.orderMaster[col].splice(this.orderMaster[col].indexOf(this.dialogData.row[col]), 1);
-              
+
             master_changed = true;
           }
         }
@@ -365,9 +385,14 @@ export class ReportAddUpdateDlgComponent implements OnInit, OnDestroy {
               artwork[obj.colname] = '';
             }
           }
+          for (let obj of this.appservice.orderDS) {
+            if (obj.right == "Sales" && form_val[obj.colname])
+              artwork[obj.colname] = form_val[obj.colname];
+          }
           artwork.type = 'art_report';
           artwork.artwork_status = 'Pending';
           artwork.created_at = Date.now();
+          artwork.wo_number = response._id;
 
           try {
             await lastValueFrom(this.dialogData.row ? this.appservice.UpdateReport(artwork) : this.appservice.CreateReport(artwork))
@@ -458,7 +483,7 @@ export class ReportAddUpdateDlgComponent implements OnInit, OnDestroy {
 
       }
 
-      this.sb.open(type + (this.dialogData.row ? " Updated" : " Created") + " Successfully", "Ok", {
+      this.sb.open(type + (this.dialogData.row && !this.dialogData.clone ? " Updated" : " Created") + " Successfully", "Ok", {
         duration: 2000
       });
       this.saving = false;

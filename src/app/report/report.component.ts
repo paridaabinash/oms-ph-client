@@ -266,14 +266,32 @@ export class ReportComponent implements OnInit {
       }
     });
   }
+  cloneRow(row: any) {
+    let height = '100%';
+    switch (this.type) {
+      case 'composition_master':
+      case 'rm_master':
+      case 'under_test_stock_report':
+      case 'pm_stock_master':
+      case 'packaging_master': height = 'auto'; break;
+      case 'brand_master': height = '100%'; break;
+    }
+    this.dialog.open(ReportAddUpdateDlgComponent, {
+      width: '90%', height: height, data: { row, ds: this.displayedColumns, type: this.type, reportType: this.reportType.value, clone: true }, autoFocus: false
+    }).afterClosed().subscribe(res => {
+      if (res) {
+        this.reportDataSource.data.unshift(res);
+        this.reportDataSource.data = this.reportDataSource.data.slice();
+      }
+    });
+  }
   getDisplayedColumns() {
     let isHandset = false;
     this.appservice.isHandset$.subscribe((data) => isHandset = data);
     if (this.isStatic || isHandset)
       return this.displayedColumns.map(col => col.colname);
     else
-      //return this.displayAllCol ?
-      //  this.displayedColumns.map(col => col.colname).concat('action') :
+      
       return this.type.includes("master") ?
        this.displayedColumns.reduce((acc, col) => {
         if (col.displayCol)
