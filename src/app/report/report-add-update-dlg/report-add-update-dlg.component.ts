@@ -209,9 +209,13 @@ export class ReportAddUpdateDlgComponent implements OnInit, OnDestroy {
   //  this.controlArrayValue[controlName].push(sel_el._id);
   //}
 
-  onBlur(selection_list: string[], form_ctrl: string, ind: any) {
+  onFocusOut(th: any, item: any) {
+    return this.form.get(item.colname)?.setValue(this.form.get(item.colname)?.value.trim());
+  }
+
+  onBlur(selection_list: string[], form_ctrl: string, strict_selection: boolean) {
     setTimeout(() => {
-      if (!this.dialogData.type.includes("_master") && selection_list && !selection_list.includes(this.form.get(form_ctrl)?.value)) {
+      if ((strict_selection || !this.dialogData.type.includes("_master")) && selection_list && !selection_list.includes(this.form.get(form_ctrl)?.value)) {
         this.form.get(form_ctrl)?.setValue("");
       }
     });

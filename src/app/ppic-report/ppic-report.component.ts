@@ -75,7 +75,9 @@ export class PpicReportComponent implements OnInit {
                     } catch {
                       transit = 0;
                     }
-                     
+                    if (typeof rm_pm_wo[item.rm_item_name].present_stock == "string") {
+                      rm_pm_wo[item.rm_item_name].present_stock = parseInt(rm_pm_wo[item.rm_item_name].present_stock);
+                    }
 
                     rm_pm_wo[item.rm_item_name].required_stock = this.appservice.limitDecimals(required_qty, 4);  // keep 4 precision of float value
                     rm_pm_wo[item.rm_item_name].shortage = this.appservice.limitDecimals((rm_pm_wo[item.rm_item_name].present_stock + transit) - required_qty, 4);
@@ -111,6 +113,9 @@ export class PpicReportComponent implements OnInit {
                       transit = woPendingPM[0] ? woPendingPM[0].value[wo][item.pm_item_name] : 0;
                     } catch {
                       transit = 0;
+                    }
+                    if (typeof rm_pm_wo[item.pm_item_name].present_stock == "string") {
+                      rm_pm_wo[item.pm_item_name].present_stock = parseInt(rm_pm_wo[item.pm_item_name].present_stock);
                     }
 
                     rm_pm_wo[item.pm_item_name].required_stock = this.appservice.limitDecimals(required_qty, 4);  // keep 4 precision of float value

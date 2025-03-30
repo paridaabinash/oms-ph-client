@@ -35,6 +35,7 @@ export class AppService {
     "Artwork": { art_report: true },
     "Store": { order_report: true, rm_report: true, pm_report: true, rm_master: true, pm_stock_master: true },
     "Production": { order_report: true },
+    "Packing": { order_report: true },
     "Packaging Material": { order_report: true },
     "PPIC": { order_report: true, rm_report: true, pm_report: true, ppic_report: true },
     "Dispatch": { order_report: true }
@@ -45,7 +46,8 @@ export class AppService {
     "Purchase": { rm_report: true, pm_report: true },
     "Artwork": { },
     "Store": { },
-    "Production": { },
+    "Production": {},
+    "Packing": { },
     "Packaging Material": { },
     "PPIC": { rm_report: true, pm_report: true },
     "Dispatch": { }
@@ -238,14 +240,14 @@ export class AppService {
     { colname: 'rm_item_name', name: 'RM Name', master: true, width: '100%', autocomplete: true, selection_list: [], displayCol: true, required: true, right: 'Admin' },
     { colname: 'category', name: 'Category', autocomplete: true, selection_list: [], width: '100%', displayCol: true, right: 'Admin' },
     { colname: 'required_make', name: 'Required Make', autocomplete: true, selection_list: [], displayCol: true, right: 'Admin' },
-    { colname: 'unit', name: 'Unit', autocomplete: true, selection_list: [], displayCol: true, right: 'Admin' },
-    { colname: 'rate', name: 'Rate', autocomplete: true, selection_list: [], displayCol: true, right: 'Admin' },
+    { colname: 'unit', name: 'Unit', displayCol: true, right: 'Admin' },
+    { colname: 'rate', name: 'Rate', displayCol: true, right: 'Admin' },
     { colname: 'present_stock', name: 'Present Stock', input_field: true, input_type: "number", default: 0, displayCol: true, required: true, right: 'Store' }
   ]
   pmStockMaster: any[] = [
     { colname: 'pm_item_name', name: 'PM Name', master: true, width: '100%', autocomplete: true, selection_list: [], displayCol: true, required: true, right: 'Admin' },
-    { colname: 'unit', name: 'Unit', autocomplete: true, selection_list: [], displayCol: true, right: 'Admin' },
-    { colname: 'rate', name: 'Rate', autocomplete: true, selection_list: [], displayCol: true, right: 'Admin' },
+    { colname: 'unit', name: 'Unit', displayCol: true, right: 'Admin' },
+    { colname: 'rate', name: 'Rate', displayCol: true, right: 'Admin' },
     { colname: 'present_stock', name: 'Present Stock', input_field: true, input_type: "number", default: 0, displayCol: true, required: true, right: 'Store' }
   ]
   brandStockMaster: any[] = [
@@ -255,11 +257,11 @@ export class AppService {
     { colname: 'pm_item_name_list', name: 'PM List', width: '100%', expansion_table: "brandStockMaster_PM", ds: [], rep_type: 'brand_master_pm', default: [] }, // ds: table ds, rep_type: type used in report dlg comp
   ]
   brandStockMaster_RM: any[] = [
-    { colname: 'rm_item_name', name: 'RM Item Name', width: '100%', autocomplete: true, selection_list: [], displayCol: true },
+    { colname: 'rm_item_name', name: 'RM Item Name', width: '100%', autocomplete: true, selection_list: [], strict_selection: true, displayCol: true },
     { colname: 'calc_offset', name: 'RM Calculation Offset (Per 1 Lakh)', width: '100%', input_field: true, input_type: "number", displayCol: true, required: true },
   ]
   brandStockMaster_PM: any[] = [
-    { colname: 'pm_item_name', name: 'PM Stock Name', width: '100%', autocomplete: true, selection_list: [], displayCol: true },
+    { colname: 'pm_item_name', name: 'PM Stock Name', width: '100%', autocomplete: true, selection_list: [], strict_selection: true, displayCol: true },
     { colname: 'calc_offset', name: 'PM Calculation Offset (Per 1 Lakh)', width: '100%', input_field: true, input_type: "number", displayCol: true, required: true },
   ]
 

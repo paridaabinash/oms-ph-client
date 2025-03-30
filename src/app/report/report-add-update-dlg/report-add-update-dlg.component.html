@@ -110,7 +110,7 @@
 
         <ng-template #input_field>
           <ng-container *ngIf="item.input_field; else autocomplete">
-            <input matInput [formControlName]="item.colname" [type]="item?.input_type ?? 'text'" aria-label="Text" (focusout)="form.get(item.colname).setValue(form.get(item.colname).value.trim())" [placeholder]="item.ph ? item.ph : ''" />
+            <input matInput [formControlName]="item.colname" [type]="item.input_type ?? 'text'" aria-label="Text"  [placeholder]="item.ph ? item.ph : ''" />
           </ng-container>
         </ng-template>
 
@@ -125,7 +125,7 @@
                    matInput
                    [formControlName]="item.colname"
                   
-                   (blur)="onBlur(item.selection_list, item.colname, index)"
+                   (blur)="onBlur(item.selection_list, item.colname, item.strict_selection)"
                    [matAutocomplete]="auto">
             <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onMasterSelectionChange($event, item.colname, item.master, item.order_master)">
               <mat-option *ngFor="let option of (filteredOptions[item.colname] | async)" [value]="option">
