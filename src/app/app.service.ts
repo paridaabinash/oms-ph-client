@@ -257,11 +257,11 @@ export class AppService {
     { colname: 'pm_item_name_list', name: 'PM List', width: '100%', expansion_table: "brandStockMaster_PM", ds: [], rep_type: 'brand_master_pm', default: [] }, // ds: table ds, rep_type: type used in report dlg comp
   ]
   brandStockMaster_RM: any[] = [
-    { colname: 'rm_item_name', name: 'RM Item Name', width: '100%', autocomplete: true, selection_list: [], strict_selection: true, displayCol: true },
+    { colname: 'rm_item_name', name: 'RM Item Name', width: '100%', autocomplete: true, selection_list: [], strict_selection: true, displayCol: true, required: true },
     { colname: 'calc_offset', name: 'RM Calculation Offset (Per 1 Lakh)', width: '100%', input_field: true, input_type: "number", displayCol: true, required: true },
   ]
   brandStockMaster_PM: any[] = [
-    { colname: 'pm_item_name', name: 'PM Stock Name', width: '100%', autocomplete: true, selection_list: [], strict_selection: true, displayCol: true },
+    { colname: 'pm_item_name', name: 'PM Stock Name', width: '100%', autocomplete: true, selection_list: [], strict_selection: true, displayCol: true, required: true },
     { colname: 'calc_offset', name: 'PM Calculation Offset (Per 1 Lakh)', width: '100%', input_field: true, input_type: "number", displayCol: true, required: true },
   ]
 
